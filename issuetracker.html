@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SORMAS Issuetracker</title>
+</head>
+<body>
+    <div id="errors"></div>
+    <div id="maincontents"></div>
+</body>
+</html>
+<script>
+    const http = new XMLHttpRequest()
+
+    //http.open('GET', 'https://api.github.com/repos/hadley/dplyr/issues')
+    //http.send()
+    //http.onload = () => document.write(http.responseText)
+    //http.onload = () =>  document.getElementById("demo").innerHTML = http.responseText;
+
+    function formatDescription(desc) {
+        // Replace all headlines
+        desc = desc.replace(new RegExp('####.*', 'g'), function (x) {
+            return '<h4>' + x.substring(3, x.length) + '</h4>'
+        })
+        desc = desc.replace(new RegExp('###.*', 'g'), function (x) {
+            return '<h3>' + x.substring(3, x.length) + '</h3>'
+        })
+        desc = desc.replace(new RegExp('##.*', 'g'), function (x) {
+            return '<h2>' + x.substring(3, x.length) + '</h2>'
+        })
+
+        // code
+        desc = desc.replace(new RegExp('`.*`', 'g'), function (x) {
+            return '<code>' + x.substring(1, x.length - 1) + '</code>'
+        })
+        // fat, cursive
+        desc = desc.replace(new RegExp('\\*\\*.*\\*\\*', 'g'), function (x) {
+            return '<b>' + x.substring(2, x.length - 2) + '</b>'
+        })
+        desc = desc.replace(new RegExp('_.*_', 'g'), function (x) {
+            return '<i>' + x.substring(1, x.length - 1) + '</i>'
+        })
+        // links
+        desc = desc.replace(new RegExp('\\[.*\\]\\(.*\\)', 'g'), function (x) {
+            return (
+                '<a href="' +
+                x.substring(x.search(']') + 2, x.length - 1) +
+                '">' +
+                x.substring(1, x.search(']')) +
+                '</a>'
+            )
+        })
+        // Replace Linebreaks
+        desc = desc.replace(new RegExp('\r?\n', 'g'), '<br>')
+
+        return desc
+    }
+
+    class Feature {
+        title = ''
+        mainbody = ''
+
+        constructor(issue) {
+            this.issue = issue
+        }
+        formatContents() {
+            if (this.issue != null) {
+                // Title
+                this.title =
+                    '<h2><a href="' +
+                    this.issue.url +
+                    '">(#' +
+                    this.issue.number +
+                    ') ' +
+                    this.issue.title +
+                    '</a></h2>'
+                if (this.issue.milestone != null) {
+                    this.title +=
+                        '<p>Planned Release: ' +
+                        this.issue.milestone.due_on +
+                        ' (' +
+                        this.issue.milestone.title +
+                        ')</p>'
+                }
+
+                // Body
+                if (this.prissue != null) {
+                    this.mainbody += '<a href="' + this.prissue.url + '">PR Created!</a>'
+                    // check if PR has been closed
+                    const xmlhttp2 = new XMLHttpRequest()
+                    const url = this.prissue.pull_request.url + '/merge'
+
+                    xmlhttp2.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 204) {
+                            // PR Merged
+                        } else if (this.readyState == 4 && this.status == 404) {
+                            // PR not merged
+                        }
+                    }
+                    xmlhttp2.open('GET', url, true)
+                    xmlhttp2.send()
+                }
+                if (this.issue.body.search('### Issuetracker Description') != -1) {
+                    this.mainbody += formatDescription(
+                        this.issue.body.substring(
+                            this.issue.body.search('### Issuetracker Description'),
+                            this.issue.body.length
+                        )
+                    )
+                } else {
+                    this.mainbody +=
+                        formatDescription(this.issue.body) +
+                        '<br>(No issuetracker Description provided)'
+                }
+            }
+        }
+    }
+
+    function styleCollapsibles()
+    {
+        const collapsibles = document.getElementsByClassName('collapsiblebtn')
+        let i
+
+        console.log(collapsibles.length)
+        for(i = 0; i < collapsibles.length; i++)
+        {
+            collapsibles[i].addEventListener('click', function(){
+                this.classList.toggle("active");
+                const content = this.nextElementSibling;
+                if(content != null)
+                {
+                    if (content.style.maxHeight){
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                }
+            })
+        }
+    }
+
+    function myFunction(arr) {
+        let out = ''
+        let i
+        const featurearray = []
+        // issues
+        for (i = 0; i < arr.length; i++) {
+            if (arr[i].pull_request == null) {
+                featurearray.push(new Feature(arr[i]))
+            }
+        }
+        // link PRs
+        for (i = 0; i < arr.length; i++) {
+            if (arr[i].pull_request != null) {
+                let j
+                for (j = 0; j < featurearray.length; j++) {
+                    if (arr[i].body != null) {
+                        if (
+                            arr[i].body.search('#' + featurearray[j].issue.number) != -1 ||
+                            arr[i].title.search('#' + featurearray[j].issue.number) != -1
+                        ) {
+                            featurearray[j].prissue = arr[i]
+                        }
+                    }
+                }
+            }
+        }
+        for (i = 0; i < featurearray.length; i++) {
+            featurearray[i].formatContents()
+            out += '<button class="collapsiblebtn">' + featurearray[i].title + '</button><div class="collapsiblecontent"><p>' + featurearray[i].mainbody + '</p></div><br>'
+        }
+
+        document.getElementById('maincontents').innerHTML = out
+        styleCollapsibles()
+    }
+
+    const xmlhttp = new XMLHttpRequest()
+
+    // Pagination is a Problem! I need to iterate over all pages for reliable results
+    //const url = "https://api.github.com/repos/hzi-braunschweig/SORMAS-Project/issues?per_page=100&state=open";
+    const url = 'https://api.github.com/repos/ImisDevelopers/1_011_a_infektionsfall_uebermittellung/issues?state=open&labels=issuetracker'
+
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            const myArr = JSON.parse(this.responseText)
+            myFunction(myArr)
+        }
+        else if(this.readyState == 4 && this.status == 403)
+        {
+            console.log(this.responseText)
+            document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
+        }
+    }
+    xmlhttp.open('GET', url, true)
+    xmlhttp.send()
+</script>
+<style>
+    .collapsiblebtn{
+        background-color: #eee;
+        color: #444;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+    .active, .collapsiblebtn:hover {
+        background-color: #979797;
+    }
+    .collapsiblecontent{
+        padding: 0 18px;
+        overflow: hidden;
+        background-color: #f1f1f1;
+        max-height: 0;
+        transition: max-height 0.2s ease-out;
+    }
+</style>
