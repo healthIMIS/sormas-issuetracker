@@ -7,6 +7,14 @@
 <body>
     <h1>SORMAS Issuetracker Alpha</h1>
     <div id="errors"></div>
+    <div>
+        <h4 style="color: red">Please note: current fetch limit is 100 entries, including PRs!</h4>
+        <h4>Target Repository: (e.g. ImisDevelopers/1_011_a_infektionsfall_uebermittellung) </h4>
+        <input type="text" id="targetrepo" name="targetrepo" value="ImisDevelopers/1_011_a_infektionsfall_uebermittellung" style="width: 30%"><br>
+        <h4>Target Tags: (e.g. state=open&labels=issuetracker)</h4>
+        <input type="text" id="targettags" name="targettags" value="per_page=100&state=open&labels=issuetracker" style="width: 30%"><br>
+        <button onclick="submitTargetURL()">Fetch Data</button>
+    </div>
     <div id="maincontents"></div>
 </body>
 </html>
@@ -76,12 +84,21 @@
                     this.issue.title +
                     '</a></h2>'
                 if (this.issue.milestone != null) {
-                    this.title +=
-                        '<p style="display:inline; margin-left: 5%">ETA: ' +
-                        this.issue.milestone.due_on.substring(0, 10) +
-                        ' (' +
-                        this.issue.milestone.title +
-                        ')</p>'
+                    if(this.issue.milestone.due_on != null) {
+                        this.title +=
+                            '<p style="display:inline; margin-left: 5%">ETA: ' +
+                            this.issue.milestone.due_on.substring(0, 10) +
+                            ' (' +
+                            this.issue.milestone.title +
+                            ')</p>'
+                    }
+                    else
+                    {
+                        this.title +=
+                            '<p style="display:inline; margin-left: 5%">ETA: ' +
+                            this.issue.milestone.title +
+                            '</p>'
+                    }
                 }
                 this.title += '</div>';
 
@@ -121,7 +138,7 @@
                         )
                     )
                 } else {
-                    this.mainbody += '<p>Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.<p>' + formatDescription(this.issue.body);
+                    this.mainbody += '<p>Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.<p><div style="border: 1px dashed gray;">' + formatDescription(this.issue.body) + '</div>';
                 }
 
                 // Links
@@ -170,6 +187,7 @@
         // link PRs
         for (i = 0; i < arr.length; i++) {
             if (arr[i].pull_request != null) {
+                console.log("PR not null" + arr[i].number)
                 let j
                 for (j = 0; j < featurearray.length; j++) {
                     if (arr[i].body != null) {
@@ -208,26 +226,30 @@
         styleCollapsibles()
     }
 
-    const xmlhttp = new XMLHttpRequest()
-
     // Pagination is a Problem! I need to iterate over all pages for reliable results
     //const url = "https://api.github.com/repos/hzi-braunschweig/SORMAS-Project/issues?per_page=100&state=open";
-    const url = 'https://api.github.com/repos/ImisDevelopers/1_011_a_infektionsfall_uebermittellung/issues?state=open&labels=issuetracker'
+    let url = 'https://api.github.com/repos/ImisDevelopers/1_011_a_infektionsfall_uebermittellung/issues?per_page=100&state=open&labels=issuetracker'
+    function submitTargetURL()
+    {
+        url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?' + document.getElementById("targettags").value;
+        const xmlhttp = new XMLHttpRequest()
 
-    xmlhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            const myArr = JSON.parse(this.responseText)
-            myFunction(myArr)
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                const myArr = JSON.parse(this.responseText)
+                myFunction(myArr)
+            }
+            else if(this.readyState == 4 && this.status == 403)
+            {
+                console.log(this.responseText)
+                console.log(this);
+                document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
+            }
         }
-        else if(this.readyState == 4 && this.status == 403)
-        {
-            console.log(this.responseText)
-            console.log(this);
-            document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
-        }
+        xmlhttp.open('GET', url, true)
+        xmlhttp.send()
     }
-    xmlhttp.open('GET', url, true)
-    xmlhttp.send()
+
 </script>
 <style>
     body {

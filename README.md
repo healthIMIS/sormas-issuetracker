@@ -1,7 +1,8 @@
 # SORMAS Issuetracker
 
 This issuetracker is supposed to automatically fetch issue data from the [SORMAS](https://github.com/hzi-braunschweig/SORMAS-Project) repository.
-Only issues with the _issuetracker_-label are taken into consideration.
+**Only issues and PRs with the _issuetracker_-label are taken into consideration!**
+
 Issue Progress ratings are based on the following categories:
 - Conceptual Design: Issue, but no PR created
 - Development: Issue and PR created, but no review requested at the moment
