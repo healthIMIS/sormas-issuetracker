@@ -5,6 +5,7 @@
     <title>SORMAS Issuetracker</title>
 </head>
 <body>
+    <h1>SORMAS Issuetracker Alpha</h1>
     <div id="errors"></div>
     <div id="maincontents"></div>
 </body>
@@ -58,7 +59,9 @@
 
     class Feature {
         title = ''
+        progressbar = ''
         mainbody = ''
+        linksection = ''
 
         constructor(issue) {
             this.issue = issue
@@ -67,50 +70,66 @@
             if (this.issue != null) {
                 // Title
                 this.title =
-                    '<h2><a href="' +
+                    '<div><h2 style="display:inline;"><a href="' +
                     this.issue.url +
-                    '">(#' +
-                    this.issue.number +
-                    ') ' +
+                    '">' +
                     this.issue.title +
                     '</a></h2>'
                 if (this.issue.milestone != null) {
                     this.title +=
-                        '<p>Planned Release: ' +
-                        this.issue.milestone.due_on +
+                        '<p style="display:inline; margin-left: 5%">ETA: ' +
+                        this.issue.milestone.due_on.substring(0, 10) +
                         ' (' +
                         this.issue.milestone.title +
                         ')</p>'
                 }
+                this.title += '</div>';
 
-                // Body
-                if (this.prissue != null) {
-                    this.mainbody += '<a href="' + this.prissue.url + '">PR Created!</a>'
+                // Progressbar
+                if(this.PR == null) {
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 25%"></span><span class="progressbartext">Konzeptionierung</span></div>';
+                }
+                else if(this.PR != null)
+                {
                     // check if PR has been closed
-                    const xmlhttp2 = new XMLHttpRequest()
-                    const url = this.prissue.pull_request.url + '/merge'
-
-                    xmlhttp2.onreadystatechange = function () {
-                        if (this.readyState == 4 && this.status == 204) {
-                            // PR Merged
-                        } else if (this.readyState == 4 && this.status == 404) {
-                            // PR not merged
+                    if(this.PR.merged == false)
+                    {
+                        if(this.PR.requested_reviewers == [])
+                        {
+                            // No review requested
+                            this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 50%"></span><span class="progressbartext">Entwicklung</span></div>';
+                        }
+                        else
+                        {
+                            // Review requested
+                            this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 75%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
                         }
                     }
-                    xmlhttp2.open('GET', url, true)
-                    xmlhttp2.send()
+                    else {
+                        // Done
+                        // maybe i should check if the issue is closed instead?
+                        this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 100%"></span><span class="progressbartext">Fertig</span></div>';
+                    }
                 }
+                // Body
+                this.mainbody += '<h3>Beschreibung</h3>';
                 if (this.issue.body.search('### Issuetracker Description') != -1) {
                     this.mainbody += formatDescription(
                         this.issue.body.substring(
-                            this.issue.body.search('### Issuetracker Description'),
+                            this.issue.body.search('### Issuetracker Description') + 28,
                             this.issue.body.length
                         )
                     )
                 } else {
-                    this.mainbody +=
-                        formatDescription(this.issue.body) +
-                        '<br>(No issuetracker Description provided)'
+                    this.mainbody += '<p>Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.<p>' + formatDescription(this.issue.body);
+                }
+
+                // Links
+                this.linksection += '<h3>Links</h3>'
+                this.linksection += '<a href="' + this.issue.html_url + '" target="_blank">GitHub Issue (#' + this.issue.number + ')</a><br>'
+                if(this.PR != null)
+                {
+                    this.linksection += '<a href="' + this.PR.html_url + '" target="_blank">GitHub Pull Request (#' + this.PR.number + ')</a><br>'
                 }
             }
         }
@@ -121,7 +140,6 @@
         const collapsibles = document.getElementsByClassName('collapsiblebtn')
         let i
 
-        console.log(collapsibles.length)
         for(i = 0; i < collapsibles.length; i++)
         {
             collapsibles[i].addEventListener('click', function(){
@@ -160,6 +178,22 @@
                             arr[i].title.search('#' + featurearray[j].issue.number) != -1
                         ) {
                             featurearray[j].prissue = arr[i]
+                            // also attach PR itself
+                            const xmlhttp2 = new XMLHttpRequest()
+                            const url = arr[i].pull_request.url
+
+                            xmlhttp2.onreadystatechange = function () {
+                                if (this.readyState == 4 && this.status == 200) {
+                                    const PR = JSON.parse(this.responseText)
+                                    featurearray[j].PR = PR;
+
+                                } else if (this.readyState == 4 && this.status == 404) {
+                                    // something didn't work
+                                    console.log('could not retrieve PR data from API')
+                                }
+                            }
+                            xmlhttp2.open('GET', url, false)
+                            xmlhttp2.send()
                         }
                     }
                 }
@@ -167,7 +201,7 @@
         }
         for (i = 0; i < featurearray.length; i++) {
             featurearray[i].formatContents()
-            out += '<button class="collapsiblebtn">' + featurearray[i].title + '</button><div class="collapsiblecontent"><p>' + featurearray[i].mainbody + '</p></div><br>'
+            out += '<div class="feature"><button class="collapsiblebtn">' + featurearray[i].title + '<br>' + featurearray[i].progressbar +  '</button><div class="collapsiblecontent"><p>' + featurearray[i].mainbody + '</p><p>' + featurearray[i].linksection + '</p></div></div>'
         }
 
         document.getElementById('maincontents').innerHTML = out
@@ -188,6 +222,7 @@
         else if(this.readyState == 4 && this.status == 403)
         {
             console.log(this.responseText)
+            console.log(this);
             document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
         }
     }
@@ -195,19 +230,29 @@
     xmlhttp.send()
 </script>
 <style>
+    body {
+        font-family: "Ubuntu", Sans-serif;
+        color: black;
+    }
+
+    .feature{
+        border: 1px solid black;
+        width: 40%;
+        min-width: 500px;
+    }
+
     .collapsiblebtn{
         background-color: #eee;
-        color: #444;
+        color: black;
         cursor: pointer;
         padding: 18px;
         width: 100%;
-        border: none;
         text-align: left;
-        outline: none;
         font-size: 15px;
+        box-shadow: none;
     }
     .active, .collapsiblebtn:hover {
-        background-color: #979797;
+        background-color: #005AA0;
     }
     .collapsiblecontent{
         padding: 0 18px;
@@ -216,4 +261,31 @@
         max-height: 0;
         transition: max-height 0.2s ease-out;
     }
+
+    .progressbardiv {
+        height: 20px;
+        width: 20vw;
+        position: relative;
+        background: #555;
+        border-radius: 1vw;
+        padding: 5px;
+    }
+
+    .progressbartext {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        position: absolute;
+    }
+
+    .progressbarspan {
+        display: block;
+        height: 80%;
+        border-radius: 0.8vw;
+        background-color: #006dc2;
+        position: absolute;
+        top: 10%;
+        overflow: hidden;
+    }
+
 </style>
