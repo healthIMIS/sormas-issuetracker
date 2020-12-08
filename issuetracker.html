@@ -109,9 +109,9 @@
                 else if(this.PR != null)
                 {
                     // check if PR has been closed
-                    if(this.PR.merged == false)
+                    if(this.PR.merged_at == null)
                     {
-                        if(this.PR.requested_reviewers == [])
+                        if(this.PR.requested_reviewers.length == 0)
                         {
                             // No review requested
                             this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 50%"></span><span class="progressbartext">Entwicklung</span></div>';
@@ -174,20 +174,55 @@
         }
     }
 
-    function myFunction(arr) {
+    function parseIssues(arr) {
         let out = ''
         let i
         const featurearray = []
-        // issues
+        // create feature divs
         for (i = 0; i < arr.length; i++) {
             if (arr[i].pull_request == null) {
                 featurearray.push(new Feature(arr[i]))
             }
         }
         // link PRs
-        for (i = 0; i < arr.length; i++) {
+        // this should be possible with less xmlhttp requests!
+        // fetch all open PR's
+        const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/pulls?state=open';
+        const xmlhttp = new XMLHttpRequest()
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                const PRarr = JSON.parse(this.responseText)
+                let j;
+                for(j = 0; j < PRarr.length; j++)
+                {
+                    // for each issue, check if its mentioned in PR
+                    let k;
+                    for(k = 0; k < featurearray.length; k++)
+                    {
+                        if (PRarr[j].body != null) {
+                            // this is not yet ideal, as e.g. a PR mentioning #485 is linked to issue #485 and issue #48
+                            if (
+                                PRarr[j].body.search('#' + featurearray[k].issue.number) != -1 ||
+                                PRarr[j].title.search('#' + featurearray[k].issue.number) != -1
+                            ) {
+                                featurearray[k].PR = PRarr[j]
+                            }
+                        }
+                    }
+                }
+            }
+            else if(this.readyState == 4 && this.status == 403)
+            {
+                console.log(this.responseText)
+                console.log(this);
+                document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
+            }
+        }
+        xmlhttp.open('GET', url, false)
+        xmlhttp.send()
+
+        for (i = 0; i < 0; i++) {
             if (arr[i].pull_request != null) {
-                console.log("PR not null" + arr[i].number)
                 let j
                 for (j = 0; j < featurearray.length; j++) {
                     if (arr[i].body != null) {
@@ -217,6 +252,8 @@
                 }
             }
         }
+
+        // format feature divs
         for (i = 0; i < featurearray.length; i++) {
             featurearray[i].formatContents()
             out += '<div class="feature"><button class="collapsiblebtn">' + featurearray[i].title + '<br>' + featurearray[i].progressbar +  '</button><div class="collapsiblecontent"><p>' + featurearray[i].mainbody + '</p><p>' + featurearray[i].linksection + '</p></div></div>'
@@ -237,7 +274,7 @@
         xmlhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 const myArr = JSON.parse(this.responseText)
-                myFunction(myArr)
+                parseIssues(myArr)
             }
             else if(this.readyState == 4 && this.status == 403)
             {
