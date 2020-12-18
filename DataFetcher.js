@@ -81,30 +81,29 @@ class Feature {
             this.title += '</div>';
 
             // Progressbar
-            if(this.PR == null) {
-                this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 25%"></span><span class="progressbartext">' + this.cardstatus + '</span></div>';
-            }
-            else if(this.PR != null)
+            // TODO: It would be nice if progress data would be directly fetched from Project Board for higher code reusability
+            switch(this.cardstatus)
             {
-                // check if PR has been closed
-                if(this.PR.merged_at == null)
-                {
-                    if(this.PR.requested_reviewers.length == 0)
-                    {
-                        // No review requested
-                        this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 50%"></span><span class="progressbartext">Entwicklung</span></div>';
-                    }
-                    else
-                    {
-                        // Review requested
-                        this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 75%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
-                    }
-                }
-                else {
-                    // Done
-                    // maybe i should check if the issue is closed instead?
+                case 'Backlog':
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0%"></span><span class="progressbartext">In Planung</span></div>';
+                    break;
+                case 'In Progress':
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 20%"></span><span class="progressbartext">Entwicklung</span></div>';
+                    break;
+                case 'Waiting':
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 40%"></span><span class="progressbartext">Entwicklung</span></div>';
+                    break;
+                case 'Review':
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 60%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
+                    break;
+                case 'Testing':
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 80%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
+                    break;
+                case 'Done':
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 100%"></span><span class="progressbartext">Fertig</span></div>';
-                }
+                        break;
+                default:
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0%"></span><span class="progressbartext">Status unbekannt</span></div>';
             }
             // Body
             this.mainbody += '<h3>Beschreibung</h3>';
