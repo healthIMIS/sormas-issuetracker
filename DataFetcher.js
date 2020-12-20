@@ -53,18 +53,16 @@ class Feature {
         this.cardstatus = status;
     }
     formatContents() {
+    // TODO: Input sanitzier
         if (this.issue != null) {
             // Title
+            // TODO: Milestone could propably be removed or moved somewhere else
             this.title =
-                '<div><h2 style="display:inline;"><a href="' +
-                this.issue.url +
-                '">' +
-                this.issue.title +
-                '</a></h2>'
+                '<div><h2>' + this.issue.title + '</h2>'
             if (this.issue.milestone != null) {
                 if(this.issue.milestone.due_on != null) {
                     this.title +=
-                        '<p style="display:inline; margin-left: 5%">ETA: ' +
+                        '<p>ETA: ' +
                         this.issue.milestone.due_on.substring(0, 10) +
                         ' (' +
                         this.issue.milestone.title +
@@ -73,7 +71,7 @@ class Feature {
                 else
                 {
                     this.title +=
-                        '<p style="display:inline; margin-left: 5%">ETA: ' +
+                        '<p>ETA: ' +
                         this.issue.milestone.title +
                         '</p>'
                 }
@@ -147,14 +145,14 @@ function styleCollapsibles()
     }
 }
 
-function fetchIssues(url, parser, formatter)
+function fetchIssues(url, authenticationToken, parser, formatter)
 {
     const xmlhttp = new XMLHttpRequest()
 
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const myArr = JSON.parse(this.responseText)
-            parser(myArr, formatter)
+            parser(myArr, authenticationToken, formatter)
         }
         else if(this.readyState == 4)
         {
@@ -166,7 +164,7 @@ function fetchIssues(url, parser, formatter)
     xmlhttp.send()
 }
 
-function fetchCardStatus(feature, callback)
+function fetchCardStatus(feature, authenticationToken, callback)
 {
     url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/events?per_page=100';
     const xmlhttp = new XMLHttpRequest()
@@ -202,25 +200,22 @@ function fetchCardStatus(feature, callback)
         }
         else if(this.readyState == 4)
         {
-            console.log(this.status + ': ' + this.responseText)
-            console.log(this);
-            document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
+            handleRequestErrors(this)
         }
     }
     xmlhttp.open('GET', url, true)
-    // TODO: get Authentication from parameter
-    xmlhttp.setRequestHeader("Authorization", 'token ' + document.getElementById('auth').value);
+    xmlhttp.setRequestHeader("Authorization", 'token ' + authenticationToken);
     xmlhttp.setRequestHeader("Accept", "application/vnd.github.starfox-preview+json");
     xmlhttp.send()
 }
 
-function parseIssues(arr, formatter) {
+function parseIssues(arr, authenticationToken, formatter) {
     const featurearray = []
     let i
     for (i = 0; i < arr.length; i++) {
         if (arr[i].pull_request == null) {
             featurearray.push(new Feature(arr[i]))
-            fetchCardStatus(featurearray[featurearray.length -1], function(done, feature){
+            fetchCardStatus(featurearray[featurearray.length -1], authenticationToken, function(done, feature){
                 if(done == true)
                 {
                     formatFeature(feature)
@@ -243,8 +238,9 @@ function formatFeature(feature)
 function fetchData()
 {
     const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=bug&state=open&per_page=30';
+    const auth = document.getElementById("auth").value;
 
-    fetchIssues(url, parseIssues, formatFeature)
+    fetchIssues(url, auth, parseIssues, formatFeature)
 
     // update request limit after some time
     // TODO: remove me sometime closer to release
@@ -263,9 +259,7 @@ function updateRequestLimit(auth)
         }
         else if(this.readyState == 4 && this.status == 403)
         {
-            console.log(this.responseText)
-            console.log(this);
-            document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
+            handleRequestErrors(this)
         }
     }
     xmlhttp.open('GET', 'https://api.github.com/rate_limit', true)
@@ -274,4 +268,10 @@ function updateRequestLimit(auth)
         xmlhttp.setRequestHeader("Authorization", 'token ' + auth);
     }
     xmlhttp.send()
+}
+
+function handleRequestErrors(err)
+{
+    console.log(err.status + ': ' + err.responseText)
+    document.getElementById("errors").innerHTML += '<p>Error: ' + err.status + ' (See console)</p>';
 }
