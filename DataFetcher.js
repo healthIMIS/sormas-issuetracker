@@ -237,10 +237,13 @@ function formatFeature(feature)
 
 function fetchData()
 {
-    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=bug&state=open&per_page=30';
+    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=bug&per_page=30';
     const auth = document.getElementById("auth").value;
 
-    fetchIssues(url, auth, parseIssues, formatFeature)
+    // Fetch all open issues to make sure that none are missed.
+    fetchIssues(url + '&state=open', auth, parseIssues, formatFeature)
+    // Fetch recently closed issues too
+    fetchIssues(url + '&state=closed', auth, parseIssues, formatFeature)
 
     // update request limit after some time
     // TODO: remove me sometime closer to release

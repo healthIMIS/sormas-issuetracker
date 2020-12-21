@@ -36,7 +36,7 @@ body {
     position: relative;
     background: #555;
     border-radius: 1vw;
-    padding: 5px;
+    padding: 1%;
 }
 
 .progressbartext {
@@ -53,5 +53,7 @@ body {
     background-color: #006dc2;
     position: absolute;
     top: 10%;
+    left: 1.5%;
+    max-width: 97%;
     overflow: hidden;
 }
