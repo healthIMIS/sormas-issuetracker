@@ -156,11 +156,11 @@ function fetchIssues(url, authenticationToken, parser, formatter)
         }
         else if(this.readyState == 4)
         {
-            console.log(this.status + ': ' + this.responseText)
-            document.getElementById("errors").innerHTML += '<p>' + this.responseText + '</p>';
+            handleRequestErrors(this)
         }
     }
     xmlhttp.open('GET', url, true)
+    xmlhttp.setRequestHeader("Authorization", 'token ' + authenticationToken);
     xmlhttp.send()
 }
 
@@ -245,7 +245,7 @@ function fetchData()
     // update request limit after some time
     // TODO: remove me sometime closer to release
     setTimeout(() => {
-        updateRequestLimit("")
+        updateRequestLimit(auth)
     }, 2000);
 }
 
@@ -255,7 +255,7 @@ function updateRequestLimit(auth)
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById("remainingRequests").innerText = 'Remaining requests this hour: ' + res.rate.remaining + ' / ' + res.rate.limit;
+            document.getElementById("remainingRequests").innerText = 'Remaining API requests this hour: ' + res.rate.remaining + ' / ' + res.rate.limit;
         }
         else if(this.readyState == 4 && this.status == 403)
         {
@@ -273,5 +273,5 @@ function updateRequestLimit(auth)
 function handleRequestErrors(err)
 {
     console.log(err.status + ': ' + err.responseText)
-    document.getElementById("errors").innerHTML += '<p>Error: ' + err.status + ' (See console)</p>';
+    document.getElementById("errors").innerHTML = '<p style="color: red">A Problem occured fetching new data. See console for details.</p>';
 }
