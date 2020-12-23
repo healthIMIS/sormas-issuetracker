@@ -1,10 +1,13 @@
 function formatDescription(desc) {
     // Replace all headlines
+    desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
+        return '<h5>' + x.substring(6, x.length) + '</h5>'
+    })
     desc = desc.replace(new RegExp('####.*', 'g'), function (x) {
-        return '<h4>' + x.substring(3, x.length) + '</h4>'
+        return '<h4>' + x.substring(5, x.length) + '</h4>'
     })
     desc = desc.replace(new RegExp('###.*', 'g'), function (x) {
-        return '<h3>' + x.substring(3, x.length) + '</h3>'
+        return '<h3>' + x.substring(4, x.length) + '</h3>'
     })
     desc = desc.replace(new RegExp('##.*', 'g'), function (x) {
         return '<h2>' + x.substring(3, x.length) + '</h2>'
@@ -31,6 +34,7 @@ function formatDescription(desc) {
             '</a>'
         )
     })
+
     // Replace Linebreaks
     desc = desc.replace(new RegExp('\r?\n', 'g'), '<br>')
 
@@ -191,6 +195,9 @@ function fetchCardStatus(feature, authenticationToken, callback)
                             if(myArr[i].project_card.project_id == 1195681 || myArr[i].project_card.project_id == 5529312)
                             {
                                 feature.setCardStatus(myArr[i].project_card.column_name);
+                            }
+                            else {
+                                // TODO: handle different Projects
                             }
                         }
                     }
