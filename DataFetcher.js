@@ -47,40 +47,25 @@ class Feature {
     mainbody = ''
     linksection = ''
     cardstatus = 'No progress information.'
+    cardstatusdate = ''
     html = ''
 
     constructor(issue) {
         this.issue = issue
     }
-    setCardStatus(status)
+    setCardStatus(status, date)
     {
+        const jsDate = new Date(date)
+        this.cardstatusdate = jsDate.getDate() + '/' + jsDate.getMonth() + '/' + jsDate.getFullYear();
         this.cardstatus = status;
     }
     formatContents() {
     // TODO: Input sanitzier
         if (this.issue != null) {
             // Title
-            // TODO: Milestone could propably be removed or moved somewhere else
+            // TODO: fetch title from description if possible
             this.title =
-                '<div><h2>' + this.issue.title + '</h2>'
-            if (this.issue.milestone != null) {
-                if(this.issue.milestone.due_on != null) {
-                    this.title +=
-                        '<p>ETA: ' +
-                        this.issue.milestone.due_on.substring(0, 10) +
-                        ' (' +
-                        this.issue.milestone.title +
-                        ')</p>'
-                }
-                else
-                {
-                    this.title +=
-                        '<p>ETA: ' +
-                        this.issue.milestone.title +
-                        '</p>'
-                }
-            }
-            this.title += '</div>';
+                '<div><h2>' + this.issue.title + '</h2></div>';
 
             // Progressbar
             // TODO: It would be nice if progress data would be directly fetched from Project Board for higher code reusability
@@ -102,7 +87,7 @@ class Feature {
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 80%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
                     break;
                 case 'Done':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 100%"></span><span class="progressbartext">Fertig</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 100%"></span><span class="progressbartext">Fertig (' + this.cardstatusdate + ')</span></div>';
                         break;
                 default:
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0%"></span><span class="progressbartext">Status unbekannt</span></div>';
@@ -194,7 +179,7 @@ function fetchCardStatus(feature, authenticationToken, callback)
                             // TODO: Move allowed projects outside or handle disallowed projects
                             if(myArr[i].project_card.project_id == 1195681 || myArr[i].project_card.project_id == 5529312)
                             {
-                                feature.setCardStatus(myArr[i].project_card.column_name);
+                                feature.setCardStatus(myArr[i].project_card.column_name, myArr[i].created_at);
                             }
                             else {
                                 // TODO: handle different Projects
@@ -244,8 +229,12 @@ function formatFeature(feature)
 
 function fetchData()
 {
+    // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
+
     const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=bug&per_page=30';
     const auth = document.getElementById("auth").value;
+
+    // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
 
     // Fetch all open issues to make sure that none are missed.
     fetchIssues(url + '&state=open', auth, parseIssues, formatFeature)
