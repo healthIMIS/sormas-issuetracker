@@ -1,7 +1,11 @@
 const Config={
-    'Projects' : [1195681, 5529312],
-    'AllowedUserIDs' : [4655486],
-    'AllowedLabels' : ['issuetracker']
+    'Projects' : [1195681, 5529312], // IDs of the projects, which are used to fetched progress information
+    'AllowedCommentAuthorIDs' : [4655486], // GitHub Users who are allowed to update the Issuetracker description through comments
+    'AllowedCommentAuthorAssociations' : ['COLLABORATOR', 'OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
+    'AllowedLabels' : ['issuetracker'], // Labels which are to be considered when fetching issues
+    'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
+    'maxEventsToFetch' : 30, // same as above
+    'maxCommentsToFetch' : 30 // same as above
 }
 
 
@@ -87,19 +91,23 @@ class Feature {
         let latestCommentUpdateID = -1
         if(this.comments != null)
         {
-            let i
-            for(i = 0; i < this.comments.length; i++)
-            {
-                if(this.comments[i].body.search('### Issuetracker Description') != -1)
+            this.comments.forEach(function(comment, i) {
+                if(comment.body.search('### Issuetracker Description') != -1)
                 {
                     // check if comment creator has the necessary rights
-                    Config.AllowedUserIDs.forEach(ID => {
-                        if(this.comments[i].user.id == ID) {
+                    Config.AllowedCommentAuthorIDs.forEach(authorID => {
+                        if(comment.user.id == authorID) {
+                            latestCommentUpdateID = i
+                        }
+                    })
+                    // TODO: find out why author_association is sometimes wrong (API returns wrong value)
+                    Config.AllowedCommentAuthorAssociations.forEach(association => {
+                        if(comment.author_association == association) {
                             latestCommentUpdateID = i
                         }
                     })
                 }
-            }
+            })
         }
         // Create content from Issue or Comment
         if(this.issue != null && latestCommentUpdateID == -1)
@@ -220,7 +228,7 @@ function fetchIssues(url, authenticationToken, parser, formatter)
 
 function fetchCardStatus(feature, authenticationToken, callback)
 {
-    url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/events?per_page=100';
+    url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/events?per_page=' + Config.maxEventsToFetch;
     const xmlhttp = new XMLHttpRequest()
 
     xmlhttp.onreadystatechange = function () {
@@ -269,7 +277,7 @@ function fetchCardStatus(feature, authenticationToken, callback)
 
 function fetchComments(feature, authenticationToken, callback)
 {
-    url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/comments?per_page=100';
+    url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/comments?per_page=' + Config.maxCommentsToFetch;
     const xmlhttp = new XMLHttpRequest()
 
     xmlhttp.onreadystatechange = function () {
@@ -324,10 +332,11 @@ function formatFeature(feature)
 function fetchData()
 {
     // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
-
+    // TODO: use Config for URL and Token closer to release (relevant in several places of code)
+    // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
     let labels = ''
     Config.AllowedLabels.forEach(label => labels+=(label + '&'))
-    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + labels + 'per_page=30';
+    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + labels + 'per_page=' + Config.maxIssuesToFetch;
     const auth = document.getElementById("auth").value;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
