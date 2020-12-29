@@ -24,6 +24,18 @@ function formatDescription(desc) {
     desc = desc.replace(new RegExp('_.*_', 'g'), function (x) {
         return '<i>' + x.substring(1, x.length - 1) + '</i>'
     })
+
+    // images
+    desc = desc.replace(new RegExp('\!\\[.*\\]\\(.*\\)', 'g'), function (x) {
+        return (
+            '<a target="_blank" href="' + x.substring(x.search(']') + 2, x.length - 1) + '"><img src ="' +
+            x.substring(x.search(']') + 2, x.length - 1) +
+            '" alt="' +
+            x.substring(2, x.search(']')) +
+            '"></a>'
+        )
+    })
+
     // links
     desc = desc.replace(new RegExp('\\[.*\\]\\(.*\\)', 'g'), function (x) {
         return (
@@ -37,8 +49,6 @@ function formatDescription(desc) {
 
     // Replace Linebreaks
     desc = desc.replace(new RegExp('\r?\n', 'g'), '<br>')
-
-    // TODO: support images
 
     return desc
 }
