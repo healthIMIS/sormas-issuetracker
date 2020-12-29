@@ -26,7 +26,7 @@ function formatDescription(desc) {
     })
 
     // images
-    desc = desc.replace(new RegExp('\!\\[.*\\]\\(.*\\)', 'g'), function (x) {
+    desc = desc.replace(new RegExp('\!\\[.*\]\\(.*\\)', 'g'), function (x) {
         return (
             '<a target="_blank" href="' + x.substring(x.search(']') + 2, x.length - 1) + '"><img src ="' +
             x.substring(x.search(']') + 2, x.length - 1) +
@@ -37,7 +37,7 @@ function formatDescription(desc) {
     })
 
     // links
-    desc = desc.replace(new RegExp('\\[.*\\]\\(.*\\)', 'g'), function (x) {
+    desc = desc.replace(new RegExp('\\[.*\]\\(.*\\)', 'g'), function (x) {
         return (
             '<a href="' +
             x.substring(x.search(']') + 2, x.length - 1) +
@@ -60,7 +60,6 @@ class Feature {
     linksection = ''
     cardstatus = 'No progress information.'
     cardstatusdate = ''
-    html = ''
 
     constructor(issue) {
         this.issue = issue
@@ -92,7 +91,7 @@ class Feature {
             switch(this.cardstatus)
             {
                 case 'Backlog':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0%"></span><span class="progressbartext">In Planung</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0"></span><span class="progressbartext">In Planung</span></div>';
                     break;
                 case 'In Progress':
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 20%"></span><span class="progressbartext">Entwicklung</span></div>';
@@ -110,14 +109,14 @@ class Feature {
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 100%"></span><span class="progressbartext">Fertig (' + this.cardstatusdate + ')</span></div>';
                         break;
                 default:
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0%"></span><span class="progressbartext">Status unbekannt</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0"></span><span class="progressbartext">Status unbekannt</span></div>';
             }
             // Body
             this.mainbody += '<h3>Beschreibung</h3>';
             if (this.issue.body.search('### Issuetracker Description') != -1) {
                 this.mainbody += formatDescription(
                     this.issue.body.substring(
-                        this.issue.body.search('### Issuetracker Description') + this.issue.body.substring(this.issue.body.search('### Issuetracker Description')).search(new RegExp('\n|\r')),
+                        this.issue.body.search('### Issuetracker Description') + this.issue.body.substring(this.issue.body.search('### Issuetracker Description')).search(new RegExp('[\n\r]')),
                         this.issue.body.length
                     )
                 )
@@ -230,7 +229,7 @@ function parseIssues(arr, authenticationToken, formatter) {
             fetchCardStatus(featurearray[featurearray.length -1], authenticationToken, function(done, feature){
                 if(done == true)
                 {
-                    formatFeature(feature)
+                    formatter(feature)
                 }
             });
         }
