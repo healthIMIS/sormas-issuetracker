@@ -38,6 +38,8 @@ function formatDescription(desc) {
     // Replace Linebreaks
     desc = desc.replace(new RegExp('\r?\n', 'g'), '<br>')
 
+    // TODO: support images
+
     return desc
 }
 
@@ -63,9 +65,17 @@ class Feature {
     // TODO: Input sanitzier
         if (this.issue != null) {
             // Title
-            // TODO: fetch title from description if possible
-            this.title =
-                '<div><h2>' + this.issue.title + '</h2></div>';
+            if (this.issue.body.search('### Issuetracker Description.\\[') != -1) {
+                this.title = '<div><h2>' + this.issue.body.substring(
+                    this.issue.body.search(new RegExp('### Issuetracker Description.\\[')) + 30,
+                    this.issue.body.search(new RegExp('### Issuetracker Description.\\[')) + 30 + this.issue.body.substring(this.issue.body.search(new RegExp('### Issuetracker Description.\\[')) + 29, this.issue.body.length).search(new RegExp('\]')) - 1
+                ) + '</h2></div>';
+            }
+            else
+            {
+                this.title =
+                    '<div><h2>' + this.issue.title + '</h2></div>';
+            }
 
             // Progressbar
             // TODO: It would be nice if progress data would be directly fetched from Project Board for higher code reusability
@@ -97,7 +107,7 @@ class Feature {
             if (this.issue.body.search('### Issuetracker Description') != -1) {
                 this.mainbody += formatDescription(
                     this.issue.body.substring(
-                        this.issue.body.search('### Issuetracker Description') + 28,
+                        this.issue.body.search('### Issuetracker Description') + this.issue.body.substring(this.issue.body.search('### Issuetracker Description')).search(new RegExp('\n|\r')),
                         this.issue.body.length
                     )
                 )
@@ -231,7 +241,7 @@ function fetchData()
 {
     // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
 
-    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=bug&per_page=30';
+    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=issuetracker&per_page=30';
     const auth = document.getElementById("auth").value;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
