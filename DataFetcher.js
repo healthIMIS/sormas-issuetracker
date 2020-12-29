@@ -1,3 +1,11 @@
+const Config={
+    'Projects' : [1195681, 5529312],
+    'AllowedUserIDs' : [4655486],
+    'AllowedLabels' : ['issuetracker']
+}
+
+
+
 function formatDescription(desc) {
     // Replace all headlines
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
@@ -85,10 +93,11 @@ class Feature {
                 if(this.comments[i].body.search('### Issuetracker Description') != -1)
                 {
                     // check if comment creator has the necessary rights
-                    // TODO: move allowed user IDs outside
-                    if(this.comments[i].user.id == 4655486) {
-                        latestCommentUpdateID = i
-                    }
+                    Config.AllowedUserIDs.forEach(ID => {
+                        if(this.comments[i].user.id == ID) {
+                            latestCommentUpdateID = i
+                        }
+                    })
                 }
             }
         }
@@ -232,14 +241,15 @@ function fetchCardStatus(feature, authenticationToken, callback)
                         if(myArr[i].project_card != null)
                         {
                             // only watch project "sprint backlog team interaction" and "sprint backlog team interaction"
-                            // TODO: Move allowed projects outside or handle disallowed projects
-                            if(myArr[i].project_card.project_id == 1195681 || myArr[i].project_card.project_id == 5529312)
-                            {
-                                feature.setCardStatus(myArr[i].project_card.column_name, myArr[i].created_at);
-                            }
-                            else {
-                                // TODO: handle different Projects
-                            }
+                            Config.Projects.forEach(proj => {
+                                if(myArr[i].project_card.project_id == proj)
+                                {
+                                    feature.setCardStatus(myArr[i].project_card.column_name, myArr[i].created_at);
+                                }
+                                else {
+                                    // TODO: handle different Projects
+                                }
+                            })
                         }
                     }
                 }
@@ -315,7 +325,9 @@ function fetchData()
 {
     // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
 
-    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=issuetracker&per_page=30';
+    let labels = ''
+    Config.AllowedLabels.forEach(label => labels+=(label + '&'))
+    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + labels + 'per_page=30';
     const auth = document.getElementById("auth").value;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
