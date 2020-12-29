@@ -64,20 +64,57 @@ class Feature {
     constructor(issue) {
         this.issue = issue
     }
+    setComments(commentsArr){
+        this.comments = commentsArr
+    }
     setCardStatus(status, date)
     {
         const jsDate = new Date(date)
         this.cardstatusdate = jsDate.getDate() + '/' + jsDate.getMonth() + '/' + jsDate.getFullYear();
         this.cardstatus = status;
     }
-    formatContents() {
+    formatContents()
+    {
+        // Check comments for updated descriptions
+        let latestCommentUpdateID = -1
+        if(this.comments != null)
+        {
+            let i
+            for(i = 0; i < this.comments.length; i++)
+            {
+                if(this.comments[i].body.search('### Issuetracker Description') != -1)
+                {
+                    // check if comment creator has the necessary rights
+                    // TODO: move allowed user IDs outside
+                    if(this.comments[i].user.id == 4655486) {
+                        latestCommentUpdateID = i
+                    }
+                }
+            }
+        }
+        // Create content from Issue or Comment
+        if(this.issue != null && latestCommentUpdateID == -1)
+        {
+            this.format(this.issue.body)
+        }
+        else if(latestCommentUpdateID != -1)
+        {
+            this.format(this.comments[latestCommentUpdateID].body)
+        }
+        else
+        {
+            this.format('')
+        }
+
+    }
+    format(sourceText) {
     // TODO: Input sanitzier
-        if (this.issue != null) {
+        if (sourceText != null) {
             // Title
-            if (this.issue.body.search('### Issuetracker Description.\\[') != -1) {
-                this.title = '<div><h2>' + this.issue.body.substring(
-                    this.issue.body.search(new RegExp('### Issuetracker Description.\\[')) + 30,
-                    this.issue.body.search(new RegExp('### Issuetracker Description.\\[')) + 30 + this.issue.body.substring(this.issue.body.search(new RegExp('### Issuetracker Description.\\[')) + 29, this.issue.body.length).search(new RegExp('\]')) - 1
+            if (sourceText.search('### Issuetracker Description.\\[') != -1) {
+                this.title = '<div><h2>' + sourceText.substring(
+                    sourceText.search(new RegExp('### Issuetracker Description.\\[')) + 30,
+                    sourceText.search(new RegExp('### Issuetracker Description.\\[')) + 30 + sourceText.substring(sourceText.search(new RegExp('### Issuetracker Description.\\[')) + 29, sourceText.length).search(new RegExp('\]')) - 1
                 ) + '</h2></div>';
             }
             else
@@ -112,20 +149,20 @@ class Feature {
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0"></span><span class="progressbartext">Status unbekannt</span></div>';
             }
             // Body
-            this.mainbody += '<h3>Beschreibung</h3>';
-            if (this.issue.body.search('### Issuetracker Description') != -1) {
+            this.mainbody = '<h3>Beschreibung</h3>';
+            if (sourceText.search('### Issuetracker Description') != -1) {
                 this.mainbody += formatDescription(
-                    this.issue.body.substring(
-                        this.issue.body.search('### Issuetracker Description') + this.issue.body.substring(this.issue.body.search('### Issuetracker Description')).search(new RegExp('[\n\r]')),
-                        this.issue.body.length
+                    sourceText.substring(
+                        sourceText.search('### Issuetracker Description') + sourceText.substring(sourceText.search('### Issuetracker Description')).search(new RegExp('[\n\r]')),
+                        sourceText.length
                     )
                 )
             } else {
-                this.mainbody += '<p>Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.<p><div style="border: 1px dashed gray;">' + formatDescription(this.issue.body) + '</div>';
+                this.mainbody += '<p>Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.<p><div style="border: 1px dashed gray;">' + formatDescription(sourceText) + '</div>';
             }
 
             // Links
-            this.linksection += '<h3>Links</h3>'
+            this.linksection = '<h3>Links</h3>'
             this.linksection += '<a href="' + this.issue.html_url + '" target="_blank">GitHub Issue (#' + this.issue.number + ')</a><br>'
         }
     }
@@ -220,16 +257,44 @@ function fetchCardStatus(feature, authenticationToken, callback)
     xmlhttp.send()
 }
 
+function fetchComments(feature, authenticationToken, callback)
+{
+    url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/comments?per_page=100';
+    const xmlhttp = new XMLHttpRequest()
+
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            const myArr = JSON.parse(this.responseText)
+            feature.setComments(myArr)
+            callback(true, feature)
+        }
+        else if(this.readyState == 4)
+        {
+            handleRequestErrors(this)
+        }
+    }
+    xmlhttp.open('GET', url, true)
+    xmlhttp.setRequestHeader("Authorization", 'token ' + authenticationToken);
+    xmlhttp.setRequestHeader("Accept", "application/vnd.github.v3+json");
+    xmlhttp.send()
+}
+
 function parseIssues(arr, authenticationToken, formatter) {
     const featurearray = []
     let i
     for (i = 0; i < arr.length; i++) {
         if (arr[i].pull_request == null) {
             featurearray.push(new Feature(arr[i]))
+            // fetch card status and comments
             fetchCardStatus(featurearray[featurearray.length -1], authenticationToken, function(done, feature){
                 if(done == true)
                 {
-                    formatter(feature)
+                    fetchComments(feature, authenticationToken, function(done, feature){
+                        if(done == true)
+                        {
+                            formatter(feature)
+                        }
+                    })
                 }
             });
         }
@@ -254,6 +319,9 @@ function fetchData()
     const auth = document.getElementById("auth").value;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
+
+    // clear output
+    document.getElementById('maincontents').innerHTML = ''
 
     // Fetch all open issues to make sure that none are missed.
     fetchIssues(url + '&state=open', auth, parseIssues, formatFeature)
