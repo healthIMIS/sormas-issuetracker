@@ -2,7 +2,8 @@ const Config={
     'Projects' : [1195681, 5529312], // IDs of the projects, which are used to fetched progress information
     'AllowedCommentAuthorIDs' : [4655486], // GitHub Users who are allowed to update the Issuetracker description through comments
     'AllowedCommentAuthorAssociations' : ['COLLABORATOR', 'OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
-    'AllowedLabels' : ['issuetracker'], // Labels which are to be considered when fetching issues
+    'AllowedLabels' : ['bug'], // Labels which are to be considered when fetching issues
+    'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
     'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
     'maxEventsToFetch' : 30, // same as above
     'maxCommentsToFetch' : 30 // same as above
@@ -82,8 +83,22 @@ class Feature {
     setCardStatus(status, date)
     {
         const jsDate = new Date(date)
-        this.cardstatusdate = jsDate.getDate() + '/' + jsDate.getMonth() + '/' + jsDate.getFullYear();
+        this.cardstatusdateJS = jsDate
+        this.cardstatusdate = jsDate.getDate() + '/' + (jsDate.getMonth() + 1) + '/' + jsDate.getFullYear();
         this.cardstatus = status;
+    }
+    isTooOld()
+    {
+        // Check if a finished issue was finished recently enough to still be displayed
+        if(this.cardstatusdateJS != null)
+        {
+            const daysMS = (24*60*60*1000);
+            if(this.cardstatus == 'Done' && (new Date().getTime() - this.cardstatusdateJS.getTime() > (Config.displayDaysIfFinished * daysMS)))
+            {
+                return true;
+            }
+        }
+        return false;
     }
     formatContents()
     {
@@ -145,19 +160,19 @@ class Feature {
             switch(this.cardstatus)
             {
                 case 'Backlog':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0"></span><span class="progressbartext">In Planung</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 16%"></span><span class="progressbartext">In Planung</span></div>';
                     break;
                 case 'In Progress':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 20%"></span><span class="progressbartext">Entwicklung</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 33%"></span><span class="progressbartext">Entwicklung</span></div>';
                     break;
                 case 'Waiting':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 40%"></span><span class="progressbartext">Entwicklung</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 50%"></span><span class="progressbartext">Entwicklung</span></div>';
                     break;
                 case 'Review':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 60%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 66%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
                     break;
                 case 'Testing':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 80%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
+                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 82%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
                     break;
                 case 'Done':
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 100%"></span><span class="progressbartext">Fertig (' + this.cardstatusdate + ')</span></div>';
@@ -325,7 +340,10 @@ function formatFeature(feature)
     feature.formatContents()
     feature.html = '<div class="feature"><button class="collapsiblebtn">' + feature.title + '<br>' + feature.progressbar +  '</button><div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
 
-    document.getElementById('maincontents').innerHTML += feature.html
+    // make sure feature wasn't finished loong ago
+    if(feature.isTooOld() == false) {
+        document.getElementById('maincontents').innerHTML += feature.html
+    }
     styleCollapsibles()
 }
 
