@@ -2,7 +2,7 @@ const Config={
     'Projects' : [1195681, 5529312], // IDs of the projects, which are used to fetched progress information
     'AllowedCommentAuthorIDs' : [4655486], // GitHub Users who are allowed to update the Issuetracker description through comments
     'AllowedCommentAuthorAssociations' : ['COLLABORATOR', 'OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
-    'AllowedLabels' : ['bug'], // Labels which are to be considered when fetching issues
+    'AllowedLabels' : ['bug', 'de-public'], // Labels which are to be considered when fetching issues
     'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
     'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
     'maxEventsToFetch' : 30, // same as above
