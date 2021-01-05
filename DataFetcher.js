@@ -5,7 +5,7 @@ const Config={
     'AllowedLabels' : ['bug', 'de-public'], // Labels which are to be considered when fetching issues
     'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
     'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
-    'maxEventsToFetch' : 30, // same as above
+    'maxEventsToFetch' : 60, // same as above
     'maxCommentsToFetch' : 30 // same as above
 }
 
