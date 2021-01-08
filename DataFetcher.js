@@ -1,14 +1,20 @@
 const Config={
     'Projects' : [1195681, 5529312], // IDs of the projects, which are used to fetched progress information
-    'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029], // GitHub Users who are allowed to update the Issuetracker description through comments
-    'AllowedCommentAuthorAssociations' : ['COLLABORATOR', 'OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
+    'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029], // GitHub Users who are allowed to update the Issuetracker description through comments. The original Issue text will always be taken into consideration
+    'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
     'AllowedLabels' : ['de-public'], // Labels which are to be considered when fetching issues
+    'DescriptionIdentifier' : '### Issuetracker Description', // The identifier which will be searched in Comments and Descriptions
     'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
     'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
     'maxEventsToFetch' : 60, // same as above
     'maxCommentsToFetch' : 30 // same as above
 }
-
+const i18n={
+    'GitHubIssue' : 'GitHub Issue',
+    'NoDescriptionFound' : 'Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.',
+    'Description' : 'Beschreibung',
+    'Links' : 'Links'
+}
 
 
 function formatDescription(desc) {
@@ -107,7 +113,7 @@ class Feature {
         if(this.comments != null)
         {
             this.comments.forEach(function(comment, i) {
-                if(comment.body.search('### Issuetracker Description') != -1)
+                if(comment.body.search(Config.DescriptionIdentifier) != -1)
                 {
                     // check if comment creator has the necessary rights
                     Config.AllowedCommentAuthorIDs.forEach(authorID => {
@@ -143,10 +149,10 @@ class Feature {
     // TODO: Input sanitzier
         if (sourceText != null) {
             // Title
-            if (sourceText.search('### Issuetracker Description.\\[') != -1) {
+            if (sourceText.search(Config.DescriptionIdentifier + '.\\[') != -1) {
                 this.title = '<div><h2>' + sourceText.substring(
-                    sourceText.search(new RegExp('### Issuetracker Description.\\[')) + 30,
-                    sourceText.search(new RegExp('### Issuetracker Description.\\[')) + 30 + sourceText.substring(sourceText.search(new RegExp('### Issuetracker Description.\\[')) + 29, sourceText.length).search(new RegExp('\]')) - 1
+                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30,
+                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30 + sourceText.substring(sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 29, sourceText.length).search(new RegExp('\]')) - 1
                 ) + '</h2></div>';
             }
             else
@@ -181,21 +187,22 @@ class Feature {
                     this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0"></span><span class="progressbartext">Status unbekannt</span></div>';
             }
             // Body
-            this.mainbody = '<h3>Beschreibung</h3>';
-            if (sourceText.search('### Issuetracker Description') != -1) {
+            this.mainbody = '<h3>' + i18n.Description + '</h3>';
+            if (sourceText.search(Config.DescriptionIdentifier) != -1) {
                 this.mainbody += formatDescription(
                     sourceText.substring(
-                        sourceText.search('### Issuetracker Description') + sourceText.substring(sourceText.search('### Issuetracker Description')).search(new RegExp('[\n\r]')),
+                        sourceText.search(Config.DescriptionIdentifier) + sourceText.substring(sourceText.search(Config.DescriptionIdentifier)).search(new RegExp('[\n\r]')),
                         sourceText.length
                     )
                 )
             } else {
-                this.mainbody += '<p>Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.<p><div style="border: 1px dashed gray;">' + formatDescription(sourceText) + '</div>';
+                this.mainbody += '<p>' + i18n.NoDescriptionFound + '<p><div style="border: 1px dashed gray;">' + formatDescription(sourceText) + '</div>';
+
             }
 
             // Links
-            this.linksection = '<h3>Links</h3>'
-            this.linksection += '<a href="' + this.issue.html_url + '" target="_blank">GitHub Issue (#' + this.issue.number + ')</a><br>'
+            this.linksection = '<h3>' + i18n.Links + '</h3>'
+            this.linksection += '<a href="' + this.issue.html_url + '" target="_blank">' + i18n.GitHubIssue + ' (#' + this.issue.number + ')</a><br>'
         }
     }
 }
