@@ -2,12 +2,24 @@ const Config={
     'Projects' : [1195681, 5529312], // IDs of the projects, which are used to fetched progress information
     'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029], // GitHub Users who are allowed to update the Issuetracker description through comments. The original Issue text will always be taken into consideration
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
-    'AllowedLabels' : ['de-public'], // Labels which are to be considered when fetching issues
+    'Label' : 'de-public', // Label which is to be considered when fetching issues
     'DescriptionIdentifier' : '### Issuetracker Description', // The identifier which will be searched in Comments and Descriptions
     'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
     'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
     'maxEventsToFetch' : 60, // same as above
     'maxCommentsToFetch' : 30 // same as above
+}
+// map all Project Columns to progress percentages and progress strings
+// 'none' column needs to be defined! and "Done"-State allways needs to equal 100
+
+const ProjectColumns={
+    'none' : [0, 'Keine Fortschrittsinformation'],
+    'Backlog' : [16, 'In Planung'],
+    'In Progress' : [33, 'Entwicklung'],
+    'Waiting' : [50, 'Entwicklung'],
+    'Review' : [66, 'Qualit&aumltssicherung'],
+    'Testing' : [83, 'Qualit&aumltssicherung'],
+    'Done' : [100, 'Fertig']
 }
 const i18n={
     'GitHubIssue' : 'GitHub Issue',
@@ -77,7 +89,7 @@ class Feature {
     progressbar = ''
     mainbody = ''
     linksection = ''
-    cardstatus = 'No progress information.'
+    cardstatus = 'none'
     cardstatusdate = ''
 
     constructor(issue) {
@@ -99,7 +111,7 @@ class Feature {
         if(this.cardstatusdateJS != null)
         {
             const daysMS = (24*60*60*1000);
-            if(this.cardstatus == 'Done' && (new Date().getTime() - this.cardstatusdateJS.getTime() > (Config.displayDaysIfFinished * daysMS)))
+            if(ProjectColumns[this.cardstatus][0] == 100 && (new Date().getTime() - this.cardstatusdateJS.getTime() > (Config.displayDaysIfFinished * daysMS)))
             {
                 return true;
             }
@@ -162,30 +174,15 @@ class Feature {
             }
 
             // Progressbar
-            // TODO: It would be nice if progress data would be directly fetched from Project Board for higher code reusability
-            switch(this.cardstatus)
-            {
-                case 'Backlog':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 16%"></span><span class="progressbartext">In Planung</span></div>';
-                    break;
-                case 'In Progress':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 33%"></span><span class="progressbartext">Entwicklung</span></div>';
-                    break;
-                case 'Waiting':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 50%"></span><span class="progressbartext">Entwicklung</span></div>';
-                    break;
-                case 'Review':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 66%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
-                    break;
-                case 'Testing':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 82%"></span><span class="progressbartext">Qualit&auml;tssicherung</span></div>';
-                    break;
-                case 'Done':
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 100%"></span><span class="progressbartext">Fertig (' + this.cardstatusdate + ')</span></div>';
-                        break;
-                default:
-                    this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: 0"></span><span class="progressbartext">Status unbekannt</span></div>';
+            if(ProjectColumns[this.cardstatus][0] == 100){
+                this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + ' (' + this.cardstatusdate + ')</span></div>';
             }
+            else
+            {
+                this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + '</span></div>';
+
+            }
+
             // Body
             this.mainbody = '<h3>' + i18n.Description + '</h3>';
             if (sourceText.search(Config.DescriptionIdentifier) != -1) {
@@ -356,9 +353,8 @@ function fetchData()
     // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
     // TODO: use Config for URL and Token closer to release (relevant in several places of code)
     // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
-    let labels = ''
-    Config.AllowedLabels.forEach(label => labels+=(label + '&'))
-    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + labels + 'per_page=' + Config.maxIssuesToFetch;
+    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + Config.Label + '&per_page=' + Config.maxIssuesToFetch;
+    console.log(url)
     const auth = document.getElementById("auth").value;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
