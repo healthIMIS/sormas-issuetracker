@@ -354,7 +354,6 @@ function fetchData()
     // TODO: use Config for URL and Token closer to release (relevant in several places of code)
     // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
     const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + Config.Label + '&per_page=' + Config.maxIssuesToFetch;
-    console.log(url)
     const auth = document.getElementById("auth").value;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
