@@ -1,6 +1,6 @@
 const Config={
     'Projects' : [1195681, 5529312], // IDs of the projects, which are used to fetched progress information
-    'AllowedCommentAuthorIDs' : [4655486, 70317594], // GitHub Users who are allowed to update the Issuetracker description through comments
+    'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029], // GitHub Users who are allowed to update the Issuetracker description through comments
     'AllowedCommentAuthorAssociations' : ['COLLABORATOR', 'OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
     'AllowedLabels' : ['de-public'], // Labels which are to be considered when fetching issues
     'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
@@ -269,9 +269,6 @@ function fetchCardStatus(feature, authenticationToken, callback)
                                 {
                                     feature.setCardStatus(myArr[i].project_card.column_name, myArr[i].created_at);
                                 }
-                                else {
-                                    // TODO: handle different Projects
-                                }
                             })
                         }
                     }
@@ -283,7 +280,7 @@ function fetchCardStatus(feature, authenticationToken, callback)
         {
             handleRequestErrors(this)
         }
-    }
+    }maxiheyner
     xmlhttp.open('GET', url, true)
     xmlhttp.setRequestHeader("Authorization", 'token ' + authenticationToken);
     xmlhttp.setRequestHeader("Accept", "application/vnd.github.starfox-preview+json");
