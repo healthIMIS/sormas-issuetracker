@@ -280,7 +280,7 @@ function fetchCardStatus(feature, authenticationToken, callback)
         {
             handleRequestErrors(this)
         }
-    }maxiheyner
+    }
     xmlhttp.open('GET', url, true)
     xmlhttp.setRequestHeader("Authorization", 'token ' + authenticationToken);
     xmlhttp.setRequestHeader("Accept", "application/vnd.github.starfox-preview+json");
