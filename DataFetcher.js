@@ -372,21 +372,16 @@ function fetchData()
     fetchIssues(url + '&state=open', auth, parseIssues, formatFeature)
     // Fetch recently closed issues too
     fetchIssues(url + '&state=closed', auth, parseIssues, formatFeature)
-
-    // update request limit after some time
-    // TODO: remove me sometime closer to release
-    setTimeout(() => {
-        updateRequestLimit(auth)
-    }, 2000);
 }
 
+// This method can be used to find out how many API requests are left
 function updateRequestLimit(auth)
 {
     const xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById("remainingRequests").innerText = 'Remaining API requests this hour: ' + res.rate.remaining + ' / ' + res.rate.limit;
+            // handle res.rate.remaining here
         }
         else if(this.readyState == 4 && this.status == 403)
         {
