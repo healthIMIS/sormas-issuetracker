@@ -1,18 +1,16 @@
+// For information on how to configure this Project, please read README
 const Config={
-    'Projects' : [1195681, 5529312], // IDs of the projects, which are used to fetched progress information
-    'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029], // GitHub Users who are allowed to update the Issuetracker description through comments. The original Issue text will always be taken into consideration
-    'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
-    'Label' : 'de-public', // Label which is to be considered when fetching issues
-    'DescriptionIdentifier' : '### Issuetracker Description', // The identifier which will be searched in Comments and Descriptions
-    'DescriptionEndTag'  : '### End Description', // Optional, but highly recommended
-    'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
-    'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
-    'maxEventsToFetch' : 60, // same as above
-    'maxCommentsToFetch' : 30 // same as above
+    'Projects' : [1195681, 5529312],
+    'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029],
+    'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
+    'Label' : 'de-public',
+    'DescriptionIdentifier' : '### Issuetracker Description',
+    'DescriptionEndTag'  : '### End Description',
+    'displayDaysIfFinished' : 21,
+    'maxIssuesToFetch' : 30,
+    'maxEventsToFetch' : 60,
+    'maxCommentsToFetch' : 30
 }
-// map all Project Columns to progress percentages and progress strings
-// 'none' column needs to be defined! and "Done"-State allways needs to equal 100
-
 const ProjectColumns={
     'none' : [0, 'Keine Fortschrittsinformation'],
     'Backlog' : [16, 'In Planung'],
