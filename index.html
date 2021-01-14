@@ -2,15 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SORMAS-Issuetracker embedded</title>
+    <link rel="stylesheet" href="style.css">
+    <title>SORMAS Issuetracker</title>
 </head>
 <body>
-    <iframe src="issuetracker.html" title="SORMAS Issuetracker" onload="resizeIframe(this)"></iframe>
+    <h1>SORMAS Issuetracker Alpha</h1>
+    <div id="errors"></div>
+    <div>
+        <h4>Target Repository: (e.g. hzi-braunschweig/SORMAS-Project) </h4>
+        <input type="text" id="targetrepo" name="targetrepo" value="hzi-braunschweig/SORMAS-Project" style="width: 30%"><br>
+        <h4>Authentication (GitHub OAuth2 Token with public_repo scope)</h4>
+        <input type="text" id="auth" name="auth" value="" style="width: 30%"><br>
+        <button onclick="fetchData()">Fetch Data</button>
+    </div>
+
+
+    <div id="maincontents"></div>
 </body>
 </html>
-<style>
-    iframe {
-        width: 80vw;
-        height: 90vh;
-    }
-</style>
+<script src="DataFetcher.js"></script>
