@@ -4,6 +4,7 @@ const Config={
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'], // !UNRELIABLE! Comment Author Associations which are allowed to update the Issuetracker description through comments (see https://docs.github.com/en/free-pro-team@latest/graphql/reference/enums#commentauthorassociation)
     'Label' : 'de-public', // Label which is to be considered when fetching issues
     'DescriptionIdentifier' : '### Issuetracker Description', // The identifier which will be searched in Comments and Descriptions
+    'DescriptionEndTag'  : '### End Description', // Optional, but highly recommended
     'displayDaysIfFinished' : 21, // Number of days for which finished features should be displayed
     'maxIssuesToFetch' : 30, // maximum Amount of Issues with the set label to fetch. Decrease to increase performance at the cost of completeness
     'maxEventsToFetch' : 60, // same as above
@@ -186,10 +187,16 @@ class Feature {
             // Body
             this.mainbody = '<h3>' + i18n.Description + '</h3>';
             if (sourceText.search(Config.DescriptionIdentifier) != -1) {
+                const startIndex = sourceText.search(Config.DescriptionIdentifier) + sourceText.substring(sourceText.search(Config.DescriptionIdentifier)).search(new RegExp('[\n\r]'));
+                var endIndex = sourceText.length;
+                if(sourceText.search(Config.DescriptionEndTag) != -1)
+                {
+                    endIndex = sourceText.search(Config.DescriptionEndTag);
+                }
                 this.mainbody += formatDescription(
                     sourceText.substring(
-                        sourceText.search(Config.DescriptionIdentifier) + sourceText.substring(sourceText.search(Config.DescriptionIdentifier)).search(new RegExp('[\n\r]')),
-                        sourceText.length
+                        startIndex,
+                        endIndex
                     )
                 )
             } else {
