@@ -58,4 +58,4 @@ Usage: `'<text>' : '<translation>'`
 
 ## Demo
 
-You can try out the current version of the development-branch here: https://seal33.github.io/sormas-issuetracker/issuetracker
+You can try out the current version of the development-branch here: https://seal33.github.io/sormas-issuetracker/
