@@ -58,4 +58,4 @@ Usage: `'<text>' : '<translation>'`
 
 ## Demo
 
-You can try out the current version of the development-branch here: https://davidbaldsiefen.github.io/sormas-issuetracker/
+You can try out the current version of the development-branch here: https://healthimis.github.io/sormas-issuetracker/
