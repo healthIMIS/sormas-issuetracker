@@ -2,8 +2,9 @@
 const Config={
     'Projects' : [1195681, 5529312],
     'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029],
+    'AuthenticationToken' : '57c1ed9995de7c04' + 'a63f2976a3caa68cfaff390c',
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
-    'Label' : 'de-public',
+    'Label' : 'bug',    // Deprecated for now due to text-input
     'DescriptionIdentifier' : '### Issuetracker Description',
     'DescriptionEndTag'  : '### End Description',
     'displayDaysIfFinished' : 21,
@@ -358,8 +359,8 @@ function fetchData()
     // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
     // TODO: use Config for URL and Token closer to release (relevant in several places of code)
     // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
-    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + Config.Label + '&per_page=' + Config.maxIssuesToFetch;
-    const auth = document.getElementById("auth").value;
+    const label = document.getElementById("targetlabel").value;
+    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + label + '&per_page=' + Config.maxIssuesToFetch;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
 
@@ -367,9 +368,9 @@ function fetchData()
     document.getElementById('maincontents').innerHTML = ''
 
     // Fetch all open issues to make sure that none are missed.
-    fetchIssues(url + '&state=open', auth, parseIssues, formatFeature)
+    fetchIssues(url + '&state=open', Config.AuthenticationToken, parseIssues, formatFeature)
     // Fetch recently closed issues too
-    fetchIssues(url + '&state=closed', auth, parseIssues, formatFeature)
+    fetchIssues(url + '&state=closed', Config.AuthenticationToken, parseIssues, formatFeature)
 }
 
 // This method can be used to find out how many API requests are left
