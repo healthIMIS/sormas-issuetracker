@@ -16,10 +16,10 @@ body {
 }
 
 .collapsiblebtn{
-    background-color: #eee;
+    background-color: #FFF;
     cursor: pointer;
     padding: 1%;
-    width: 98%;
+    width: 96%;
     text-align: left;
     box-shadow: none;
 }
