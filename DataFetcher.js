@@ -163,15 +163,15 @@ class Feature {
         if (sourceText != null) {
             // Title
             if (sourceText.search(Config.DescriptionIdentifier + '.\\[') != -1) {
-                this.title = '<div class="elementor-tab-title">' + sourceText.substring(
+                this.title = '<div>' + sourceText.substring(
                     sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30,
                     sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30 + sourceText.substring(sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 29, sourceText.length).search(new RegExp('\]')) - 1
-                ) + '</div>';
+                ) + '</div><br>';
             }
             else
             {
                 this.title =
-                    '<div class="elementor-tab-title">' + this.issue.title + '</div>';
+                    '<div>' + this.issue.title + '</div><br>';
             }
 
             // Progressbar
@@ -346,7 +346,7 @@ function formatFeature(feature)
 {
     // format feature divs
     feature.formatContents()
-    feature.html = '<div class="feature"><button class="collapsiblebtn">' + feature.title + feature.progressbar +  '</button><div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
+    feature.html = '<div class="feature"><div class="collapsiblebtn">' + feature.title + feature.progressbar +  '</div><div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
 
     // make sure feature wasn't finished loong ago
     if(feature.isTooOld() == false) {

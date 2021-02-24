@@ -6,21 +6,29 @@ body {
     border: 1px solid black;
     width: 100%;
     min-width: 500px;
+    font-family: "Ubuntu";
+    font-weight: 600;
+    font-size: 16px;
+    color: #005AA0;
+    border: 1px solid;
+    border-collapse: collapse;
+    border-width: 2px;
+    border-color: #D23264;
 }
 
 .collapsiblebtn{
     background-color: #eee;
-    color: black;
     cursor: pointer;
-    padding: 18px;
+    padding: 15px;
+
     width: 100%;
     text-align: left;
-    font-size: 15px;
     box-shadow: none;
 }
-.active, .collapsiblebtn:hover {
-    background-color: #005AA0;
+.active{
+    /*background-color: #005AA0;*/
 }
+
 .collapsiblecontent{
     padding: 0 18px;
     overflow: hidden;
@@ -30,29 +38,31 @@ body {
 }
 
 .progressbardiv {
-    height: 20px;
-    width: 20vw;
+    height: 35px;
+    width: 60%;
     position: relative;
-    background: #555;
-    border-radius: 1vw;
-    padding: 1%;
+    background: #959595;
+    border-radius: 0.2vw;
 }
 
 .progressbartext {
     width: 100%;
     height: 100%;
+    color: black;
+    font-weight: 400;
     text-align: center;
     position: absolute;
+    top: calc(50% - 8px);
 }
 
 .progressbarspan {
     display: block;
     height: 80%;
-    border-radius: 0.8vw;
+    border-radius: 0.2vw;
     background-color: #006dc2;
     position: absolute;
+    left: 0.5%;
     top: 10%;
-    left: 1.5%;
-    max-width: 97%;
+    max-width: 99%;
     overflow: hidden;
 }
