@@ -1,3 +1,7 @@
+body {
+    all: inherit;
+}
+
 .feature{
     border: 1px solid black;
     width: 100%;
