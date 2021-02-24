@@ -3,8 +3,7 @@ body {
 }
 
 .feature{
-    border: 1px solid black;
-    width: 100%;
+    width: 99%;
     font-family: "Ubuntu";
     font-weight: 600;
     font-size: 16px;
@@ -30,7 +29,7 @@ body {
 .collapsiblecontent{
     padding: 0 18px;
     overflow: hidden;
-    background-color: #f1f1f1;
+    background-color: #FFF;
     max-height: 0;
     transition: max-height 0.2s ease-out;
 }
