@@ -5,7 +5,6 @@ body {
 .feature{
     border: 1px solid black;
     width: 100%;
-    min-width: 500px;
     font-family: "Ubuntu";
     font-weight: 600;
     font-size: 16px;
@@ -19,9 +18,8 @@ body {
 .collapsiblebtn{
     background-color: #eee;
     cursor: pointer;
-    padding: 15px;
-
-    width: 100%;
+    padding: 1%;
+    width: 98%;
     text-align: left;
     box-shadow: none;
 }
