@@ -2,13 +2,18 @@ body {
     all: inherit;
 }
 
+#maincontents {
+    width: 100%;
+    border-collapse: collapse;
+}
+
 .feature{
     width: 99%;
     font-family: "Ubuntu";
     font-weight: 600;
     font-size: 16px;
     color: #005AA0;
-    border: 1px solid;
+    border: 2px solid;
     border-collapse: collapse;
     border-width: 2px;
     border-color: #D23264;
@@ -32,6 +37,8 @@ body {
     background-color: #FFF;
     max-height: 0;
     transition: max-height 0.2s ease-out;
+    border-top: 2px solid #D23264;
+    border-collapse: collapse;
 }
 
 .progressbardiv {

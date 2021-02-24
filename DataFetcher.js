@@ -5,7 +5,7 @@ const Config={
     'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029],
     'AuthenticationToken' : '57c1ed9995de7c04' + 'a63f2976a3caa68cfaff390c',
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
-    'Label' : 'bug',
+    'Label' : 'de-public',
     'DescriptionIdentifier' : '### Issuetracker Description',
     'DescriptionEndTag'  : '### End Description',
     'displayDaysIfFinished' : 21,
@@ -31,6 +31,7 @@ const i18n={
 
 
 function formatDescription(desc) {
+    console.log(desc);
     // Replace all headlines
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
         return '<h5>' + x.substring(6, x.length) + '</h5>'
@@ -213,17 +214,18 @@ class Feature {
 
 function styleCollapsibles()
 {
+    // TODO: prevent me from adding multiple event listeners to each feature
     const collapsibles = document.getElementsByClassName('collapsiblebtn')
     let i
 
     for(i = 0; i < collapsibles.length; i++)
     {
-        collapsibles[i].addEventListener('click', function(){
+        collapsibles[i].event
+        collapsibles[i].addEventListener('click', function() {
             this.classList.toggle("active");
             const content = this.nextElementSibling;
-            if(content != null)
-            {
-                if (content.style.maxHeight){
+            if (content != null) {
+                if (content.style.maxHeight) {
                     content.style.maxHeight = null;
                 } else {
                     content.style.maxHeight = content.scrollHeight + "px";
