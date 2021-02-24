@@ -1,10 +1,11 @@
 // For information on how to configure this Project, please read README
 const Config={
+    'Repository' : 'hzi-braunschweig/SORMAS-Project',
     'Projects' : [1195681, 5529312],
     'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029],
     'AuthenticationToken' : '57c1ed9995de7c04' + 'a63f2976a3caa68cfaff390c',
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
-    'Label' : 'bug',    // Deprecated for now due to text-input
+    'Label' : 'bug',
     'DescriptionIdentifier' : '### Issuetracker Description',
     'DescriptionEndTag'  : '### End Description',
     'displayDaysIfFinished' : 21,
@@ -253,7 +254,7 @@ function fetchIssues(url, authenticationToken, parser, formatter)
 
 function fetchCardStatus(feature, authenticationToken, callback)
 {
-    url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/events?per_page=' + Config.maxEventsToFetch;
+    url = 'https://api.github.com/repos/' + Config.Repository + '/issues/' + feature.issue.number + '/events?per_page=' + Config.maxEventsToFetch;
     const xmlhttp = new XMLHttpRequest()
 
     xmlhttp.onreadystatechange = function () {
@@ -299,7 +300,7 @@ function fetchCardStatus(feature, authenticationToken, callback)
 
 function fetchComments(feature, authenticationToken, callback)
 {
-    url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues/' + feature.issue.number + '/comments?per_page=' + Config.maxCommentsToFetch;
+    url = 'https://api.github.com/repos/' + Config.Repository + '/issues/' + feature.issue.number + '/comments?per_page=' + Config.maxCommentsToFetch;
     const xmlhttp = new XMLHttpRequest()
 
     xmlhttp.onreadystatechange = function () {
@@ -357,10 +358,8 @@ function formatFeature(feature)
 function fetchData()
 {
     // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
-    // TODO: use Config for URL and Token closer to release (relevant in several places of code)
     // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
-    const label = document.getElementById("targetlabel").value;
-    const url = 'https://api.github.com/repos/' + document.getElementById("targetrepo").value + '/issues?labels=' + label + '&per_page=' + Config.maxIssuesToFetch;
+    const url = 'https://api.github.com/repos/' + Config.Repository + '/issues?labels=' + Config.Label + '&per_page=' + Config.maxIssuesToFetch;
 
     // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
 
