@@ -31,7 +31,6 @@ const i18n={
 
 
 function formatDescription(desc) {
-    console.log(desc);
     // Replace all headlines
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
         return '<h5>' + x.substring(6, x.length) + '</h5>'
@@ -82,6 +81,16 @@ function formatDescription(desc) {
 
     // Replace Linebreaks
     desc = desc.replace(new RegExp('\r?\n', 'g'), '<br>')
+
+    // last, remove leading and trailing linebreaks
+    if(desc.substr(0, 4) == '<br>')
+    {
+        desc = desc.substr(4);
+    }
+    if(desc.substr(desc.length - 4, desc.length) == '<br>')
+    {
+        desc = desc.substr(0, desc.length - 4);
+    }
 
     return desc
 }
@@ -186,7 +195,7 @@ class Feature {
             }
 
             // Body
-            this.mainbody = '<h3>' + i18n.Description + '</h3>';
+            this.mainbody = ''; //<h3>' + i18n.Description + '</h3>';
             if (sourceText.search(Config.DescriptionIdentifier) != -1) {
                 const startIndex = sourceText.search(Config.DescriptionIdentifier) + sourceText.substring(sourceText.search(Config.DescriptionIdentifier)).search(new RegExp('[\n\r]'));
                 var endIndex = sourceText.length;
@@ -206,7 +215,7 @@ class Feature {
             }
 
             // Links
-            this.linksection = '<h3>' + i18n.Links + '</h3>'
+            this.linksection = '' //<h4>' + i18n.Links + '</h4>'
             this.linksection += '<a href="' + this.issue.html_url + '" target="_blank">' + i18n.GitHubIssue + ' (#' + this.issue.number + ')</a><br>'
         }
     }
