@@ -36,7 +36,9 @@ body {
     padding: 0 18px;
     overflow: hidden;
     background-color: #FFF;
-    max-height: 0;
+    color: #000000;
+    font-weight: 400;
+    max-height: 0; /* start collapsed */
     transition: max-height 0.5s ease-out;
 }
 
