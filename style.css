@@ -4,6 +4,7 @@ body {
 
 #maincontents {
     width: 100%;
+    border: 1px solid #D23264;
     border-collapse: collapse;
 }
 
@@ -13,9 +14,8 @@ body {
     font-weight: 600;
     font-size: 16px;
     color: #005AA0;
-    border: 2px solid;
+    border: 1px solid;
     border-collapse: collapse;
-    border-width: 2px;
     border-color: #D23264;
 }
 
@@ -37,8 +37,6 @@ body {
     background-color: #FFF;
     max-height: 0;
     transition: max-height 0.2s ease-out;
-    border-top: 2px solid #D23264;
-    border-collapse: collapse;
 }
 
 .progressbardiv {
