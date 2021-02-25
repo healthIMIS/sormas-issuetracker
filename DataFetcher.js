@@ -220,18 +220,21 @@ function styleCollapsibles()
 
     for(i = 0; i < collapsibles.length; i++)
     {
-        collapsibles[i].event
-        collapsibles[i].addEventListener('click', function() {
-            this.classList.toggle("active");
-            const content = this.nextElementSibling;
-            if (content != null) {
-                if (content.style.maxHeight) {
-                    content.style.maxHeight = null;
-                } else {
-                    content.style.maxHeight = content.scrollHeight + "px";
-                }
-            }
-        })
+        collapsibles[i].removeEventListener('click', collapsibleEventListener)
+        collapsibles[i].addEventListener('click', collapsibleEventListener)
+    }
+}
+
+function collapsibleEventListener()
+{
+    this.classList.toggle("active");
+    const content = this.nextElementSibling;
+    if (content != null) {
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+        } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+        }
     }
 }
 
