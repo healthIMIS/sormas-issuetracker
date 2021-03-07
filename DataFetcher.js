@@ -1,7 +1,7 @@
 // For information on how to configure this Project, please read README
 const Config={
     'Repository' : 'hzi-braunschweig/SORMAS-Project',
-    'Projects' : [1195681, 5529312],
+    'Projects' : [1195681, 5529312, 11280488], // TODO: Add interactions project id, remove first 2 deprecated projects
     'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029],
     'AuthenticationToken' : '57c1ed9995de7c04' + 'a63f2976a3caa68cfaff390c',
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
@@ -46,7 +46,7 @@ function formatDescription(desc) {
     })
 
     // code
-    desc = desc.replace(new RegExp('`.*`', 'g'), function (x) {
+    desc = desc.replace(new RegExp('`[^`]*`', 'g'), function (x) {
         return '<code>' + x.substring(1, x.length - 1) + '</code>'
     })
     // fat, cursive
@@ -169,28 +169,32 @@ class Feature {
 
     }
     format(sourceText) {
-    // TODO: Input sanitzier
+        // TODO: Input sanitzier
+        // TODO: Optimize for Mobile devices
         if (sourceText != null) {
             // Title
+            //this.title='<span class="plus-icon"></span>';
+            this.title='';
             if (sourceText.search(Config.DescriptionIdentifier + '.\\[') != -1) {
-                this.title = '<div>' + sourceText.substring(
+                this.title += '<span class="titlespan">' + sourceText.substring(
+                    // TODO: the 30 and 29 here seem mighty suspicous
                     sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30,
                     sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30 + sourceText.substring(sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 29, sourceText.length).search(new RegExp('\]')) - 1
-                ) + '</div><br>';
+                ) + '</span>';
             }
             else
             {
-                this.title =
-                    '<div>' + this.issue.title + '</div><br>';
+                this.title +=
+                    '<span class="titlespan">' + this.issue.title + '</span>';
             }
 
             // Progressbar
             if(ProjectColumns[this.cardstatus][0] == 100){
-                this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + ' (' + this.cardstatusdate + ')</span></div>';
+                this.progressbar = '<span class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + ' (' + this.cardstatusdate + ')</span></span>';
             }
             else
             {
-                this.progressbar = '<div class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + '</span></div>';
+                this.progressbar = '<span class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + '</span></span>';
 
             }
 
@@ -236,13 +240,16 @@ function styleCollapsibles()
 
 function collapsibleEventListener()
 {
-    this.classList.toggle("active");
     const content = this.nextElementSibling;
     if (content != null) {
         if (content.style.maxHeight) {
             content.style.maxHeight = null;
+            this.firstElementChild.classList.remove('minus-icon');
+            this.firstElementChild.classList.add('plus-icon');
         } else {
             content.style.maxHeight = content.scrollHeight + "px";
+            this.firstElementChild.classList.remove('plus-icon');
+            this.firstElementChild.classList.add('minus-icon');
         }
     }
 }
@@ -360,7 +367,8 @@ function formatFeature(feature)
 {
     // format feature divs
     feature.formatContents()
-    feature.html = '<div class="feature"><div class="collapsiblebtn">' + feature.title + feature.progressbar +  '</div><div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
+    feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progressbar +  '</div>'
+    feature.html += '<div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
 
     // make sure feature wasn't finished loong ago
     if(feature.isTooOld() == false) {

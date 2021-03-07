@@ -11,6 +11,7 @@ body {
     font-family: Roboto, Ubuntu;
     font-weight: 600;
     font-size: 16px;
+    max-width: 50em;
 }
 
 .feature{
@@ -21,33 +22,46 @@ body {
 .collapsiblebtn{
     background-color: #FFF;
     cursor: pointer;
-    padding: 1%;
-    width: 98%;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    width: 100%;
     text-align: left;
     box-shadow: none;
     border-top: 2px solid #D23264;
     border-collapse: collapse;
 }
-.active{
-    /*background-color: #005AA0;*/
+
+.plusminus-icon{
+    width:4%;
+    max-width:2em;
+    vertical-align: middle;
+    display: inline-block;
+    text-align: center;
 }
 
-.collapsiblecontent{
-    padding: 0 18px;
-    overflow: hidden;
-    background-color: #FFF;
-    color: #000000;
-    font-weight: 400;
-    max-height: 0; /* start collapsed */
-    transition: max-height 0.5s ease-out;
+.minus-icon::before {
+    content: "−";
+}
+
+.plus-icon::before {
+    content: "+";
+}
+
+.titlespan {
+    display: inline-block;
+    width: 52%;
+    vertical-align: middle;
 }
 
 .progressbardiv {
-    height: 35px;
-    width: 60%;
+    height: 30px;
+    width: 43%;
     position: relative;
-    background: #959595;
+    background: #dbeeff;
     border-radius: 0.2vw;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 1%;
 }
 
 .progressbartext {
@@ -55,6 +69,7 @@ body {
     height: 100%;
     color: black;
     font-weight: 400;
+    font-size: 14px;
     text-align: center;
     position: absolute;
     top: calc(50% - 8px);
@@ -70,4 +85,18 @@ body {
     top: 10%;
     max-width: 99%;
     overflow: hidden;
+}
+
+.collapsiblecontent{
+    padding: 0 18px;
+    overflow: hidden;
+    background-color: #FFF;
+    color: #000000;
+    font-weight: 400;
+    max-height: 0; /* start collapsed */
+    transition: max-height 0.5s ease-out;
+}
+
+code {
+    background-color: #d3d3d3;
 }
