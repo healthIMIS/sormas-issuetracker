@@ -6,8 +6,8 @@ const Config={
     'AuthenticationToken' : '57c1ed9995de7c04' + 'a63f2976a3caa68cfaff390c',
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
     'Label' : 'de-public',
-    'DescriptionIdentifier' : '### Issuetracker Description',
-    'DescriptionEndTag'  : '### End Description',
+    'DescriptionIdentifier' : '### Issuetracker-Description-DE',
+    'DescriptionEndTag'  : '### End-Description-DE',
     'displayDaysIfFinished' : 21,
     'maxIssuesToFetch' : 30,
     'maxEventsToFetch' : 60,
@@ -24,13 +24,14 @@ const ProjectColumns={
 }
 const i18n={
     'GitHubIssue' : 'GitHub Issue',
-    'NoDescriptionFound' : 'Keine Spezielle Beschreibung gefunden. Folgende Beschreibung wurde aus dem zugeh&ouml;rigen GitHub-Issue generiert.',
+    'NoDescriptionFound' : 'Keine Übersetzung gefunden. Originalbeschreibung:',
     'Description' : 'Beschreibung',
     'Links' : 'Links'
 }
 
 
 function formatDescription(desc) {
+    // TODO: Catch unclosed html-comments
     // Replace all headlines
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
         return '<h5>' + x.substring(6, x.length) + '</h5>'
@@ -178,8 +179,8 @@ class Feature {
             if (sourceText.search(Config.DescriptionIdentifier + '.\\[') != -1) {
                 this.title += '<span class="titlespan">' + sourceText.substring(
                     // TODO: the 30 and 29 here seem mighty suspicous
-                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30,
-                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 30 + sourceText.substring(sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 29, sourceText.length).search(new RegExp('\]')) - 1
+                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 33,
+                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 33 + sourceText.substring(sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 32, sourceText.length).search(new RegExp('\]')) - 1
                 ) + '</span>';
             }
             else
@@ -246,7 +247,9 @@ function collapsibleEventListener()
             content.style.maxHeight = null;
             this.firstElementChild.classList.remove('minus-icon');
             this.firstElementChild.classList.add('plus-icon');
+            content.style.borderTop = "0px solid #D23264";
         } else {
+            content.style.borderTop = "1px solid #D23264";
             content.style.maxHeight = content.scrollHeight + "px";
             this.firstElementChild.classList.remove('plus-icon');
             this.firstElementChild.classList.add('minus-icon');
@@ -369,7 +372,6 @@ function formatFeature(feature)
     feature.formatContents()
     feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progressbar +  '</div>'
     feature.html += '<div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
-
     // make sure feature wasn't finished loong ago
     if(feature.isTooOld() == false) {
         document.getElementById('maincontents').innerHTML += feature.html

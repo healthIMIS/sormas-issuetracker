@@ -88,13 +88,15 @@ body {
 }
 
 .collapsiblecontent{
-    padding: 0 18px;
+    padding-right: 18px;
+    padding-left: 4%;
     overflow: hidden;
     background-color: #FFF;
     color: #000000;
     font-weight: 400;
     max-height: 0; /* start collapsed */
-    transition: max-height 0.5s ease-out;
+    transition: max-height 0.5s ease-out, border-width 0.5s ease;
+    border-color: #D23264;
 }
 
 code {
