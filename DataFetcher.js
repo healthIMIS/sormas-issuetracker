@@ -13,14 +13,10 @@ const Config={
     'maxEventsToFetch' : 80,
     'maxCommentsToFetch' : 50
 }
-const ProjectColumns={
-    'none' : [0, 'Keine Fortschrittsinformation'],
-    'Backlog' : [16, 'In Planung'],
-    'In Progress' : [33, 'Entwicklung'],
-    'Waiting' : [50, 'Entwicklung'],
-    'Review' : [66, 'Qualit&aumltssicherung'],
-    'Testing' : [83, 'Qualit&aumltssicherung'],
-    'Done' : [100, 'Fertig']
+const ProgressState={
+    'planned' : 'In Planung',
+    'development' : 'In Entwicklung',
+    'done' : 'Fertig',
 }
 const i18n={
     'GitHubIssue' : 'GitHub Issue',
@@ -99,24 +95,16 @@ function formatDescription(desc) {
 
 class Feature {
     title = ''
-    progressbar = ''
+    progresstitle = ''
+    progressstate = 'planned'
     mainbody = ''
     linksection = ''
-    cardstatus = 'none'
-    cardstatusdate = ''
 
     constructor(issue) {
         this.issue = issue
     }
     setComments(commentsArr){
         this.comments = commentsArr
-    }
-    setCardStatus(status, date)
-    {
-        const jsDate = new Date(date)
-        this.cardstatusdateJS = jsDate
-        this.cardstatusdate = jsDate.getDate() + '/' + (jsDate.getMonth() + 1) + '/' + jsDate.getFullYear();
-        this.cardstatus = status;
     }
     isTooOld()
     {
@@ -190,15 +178,15 @@ class Feature {
                     '<span class="titlespan">' + this.issue.title + '</span>';
             }
 
-            // Progressbar
-            if(ProjectColumns[this.cardstatus][0] == 100){
-                this.progressbar = '<span class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + ' (' + this.cardstatusdate + ')</span></span>';
+            // Progress Information
+            this.milestoneInfo = ''
+            if(this.issue.state == 'closed') {
+                this.progressstate = 'done'
+                const milestonetitle = this.issue.milestone.title;
+                // All milestonetitles should follow the convention: Sprint 123 - 1.2.3
+                this.milestoneInfo = ' (' + milestonetitle.substring(milestonetitle.search(' - ') + 3) + ')';
             }
-            else
-            {
-                this.progressbar = '<span class="progressbardiv"><span class="progressbarspan" style="width: ' + ProjectColumns[this.cardstatus][0] + '%"></span><span class="progressbartext">' + ProjectColumns[this.cardstatus][1] + '</span></span>';
-
-            }
+            this.progresstitle = '<span class="progresstext">' + ProgressState[this.progressstate] + this.milestoneInfo + '</span>';
 
             // Body
             this.mainbody = ''; //<h3>' + i18n.Description + '</h3>';
@@ -303,7 +291,7 @@ function fetchCardStatus(feature, authenticationToken, callback)
                             Config.Projects.forEach(proj => {
                                 if(myArr[i].project_card.project_id == proj)
                                 {
-                                    feature.setCardStatus(myArr[i].project_card.column_name, myArr[i].created_at);
+                                    feature.progressstate = 'development';
                                 }
                             })
                         }
@@ -371,7 +359,7 @@ function formatFeature(feature)
 {
     // format feature divs
     feature.formatContents()
-    feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progressbar +  '</div>'
+    feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progresstitle +  '</div>'
     feature.html += '<div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
     // make sure feature wasn't finished loong ago
     if(feature.isTooOld() == false) {
@@ -395,28 +383,6 @@ function fetchData()
     fetchIssues(url + '&state=open', Config.AuthenticationToken, parseIssues, formatFeature)
     // Fetch recently closed issues too
     fetchIssues(url + '&state=closed', Config.AuthenticationToken, parseIssues, formatFeature)
-}
-
-// This method can be used to find out how many API requests are left
-function updateRequestLimit(auth)
-{
-    const xmlhttp = new XMLHttpRequest()
-    xmlhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            const res = JSON.parse(this.responseText);
-            // handle res.rate.remaining here
-        }
-        else if(this.readyState == 4 && this.status == 403)
-        {
-            handleRequestErrors(this)
-        }
-    }
-    xmlhttp.open('GET', 'https://api.github.com/rate_limit', true)
-    if(auth != "")
-    {
-        xmlhttp.setRequestHeader("Authorization", 'token ' + auth);
-    }
-    xmlhttp.send()
 }
 
 function handleRequestErrors(err)
