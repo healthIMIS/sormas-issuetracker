@@ -57,13 +57,14 @@ body {
 
 .progressbardiv {
     height: 30px;
-    width: 43%;
+    width: 42%;
     position: relative;
     background: #dbeeff;
     border-radius: 0.2vw;
     display: inline-block;
     vertical-align: middle;
     margin-right: 1%;
+    margin-left: 1%
 }
 
 .progressbartext {
