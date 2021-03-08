@@ -10,8 +10,8 @@ const Config={
     'DescriptionEndTag'  : '### End-Description-DE',
     'displayDaysIfFinished' : 21,
     'maxIssuesToFetch' : 30,
-    'maxEventsToFetch' : 60,
-    'maxCommentsToFetch' : 30
+    'maxEventsToFetch' : 80,
+    'maxCommentsToFetch' : 50
 }
 const ProjectColumns={
     'none' : [0, 'Keine Fortschrittsinformation'],
@@ -29,6 +29,7 @@ const i18n={
     'Links' : 'Links'
 }
 
+// TODO: Replace progress bar with more generic states "Planned (= not in stprintboard)" "In Development (=In sprintboard)" "In Release X.XX"
 
 function formatDescription(desc) {
     // TODO: Catch unclosed html-comments
