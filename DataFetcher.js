@@ -376,7 +376,6 @@ function fetchLatestRelease(url, authenticationToken)
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const myArr = JSON.parse(this.responseText)
-            console.log(myArr);
             document.getElementById('currentVersion').textContent = 'Aktuelle Version: ' + myArr.name;
         }
         else if(this.readyState == 4)
