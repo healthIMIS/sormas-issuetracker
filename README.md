@@ -11,6 +11,15 @@ Issue Progress ratings are based on the issues position in project boards.
 
 After setting up configuration, Issues will be fetched from the configured GitHub Project.
 If an Issue or Issue Comment contains text starting with the `DescriptionIdentifier`, it will be automatically used to build a description for the issuetracker.
+Example:
+
+```
+<!--
+### Issuetracker-Description-DE [Translated Title]
+Translated Content
+### End-Description-DE
+-->
+```
 
 ## Configuration
 
