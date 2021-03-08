@@ -25,8 +25,6 @@ const i18n={
     'Links' : 'Links'
 }
 
-// TODO: Replace progress bar with more generic states "Planned (= not in stprintboard)" "In Development (=In sprintboard)" "In Release X.XX"
-
 function formatDescription(desc) {
     // TODO: Catch unclosed html-comments
     // Replace all headlines
@@ -218,7 +216,6 @@ class Feature {
 
 function styleCollapsibles()
 {
-    // TODO: prevent me from adding multiple event listeners to each feature
     const collapsibles = document.getElementsByClassName('collapsiblebtn')
     let i
 
@@ -390,11 +387,8 @@ function fetchLatestRelease(url, authenticationToken)
 
 function fetchData()
 {
-    // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
     // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
     const url = 'https://api.github.com/repos/' + Config.Repository + '/issues?labels=' + Config.Label + '&per_page=' + Config.maxIssuesToFetch;
-
-    // TODO: Fetch milestone info. Either just display them on the page, or determine if finished features are within a milestone and display that inside the relevant issue
 
     // clear output
     document.getElementById('maincontents').innerHTML = ''
