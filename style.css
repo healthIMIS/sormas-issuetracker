@@ -11,7 +11,9 @@ body {
     font-family: Roboto, Ubuntu;
     font-weight: 600;
     font-size: 16px;
-    max-width: 50em;
+    max-width: 60em;
+    display: block;
+    margin: 0 auto;
 }
 
 .feature{
