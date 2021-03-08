@@ -109,10 +109,11 @@ class Feature {
     isTooOld()
     {
         // Check if a finished issue was finished recently enough to still be displayed
-        if(this.cardstatusdateJS != null)
+        if(this.issue.state == 'closed')
         {
             const daysMS = (24*60*60*1000);
-            if(ProjectColumns[this.cardstatus][0] == 100 && (new Date().getTime() - this.cardstatusdateJS.getTime() > (Config.displayDaysIfFinished * daysMS)))
+            const closedDate = new Date(this.issue.closed_at)
+            if(new Date().getTime() - closedDate.getTime() > (Config.displayDaysIfFinished * daysMS))
             {
                 return true;
             }
@@ -368,6 +369,26 @@ function formatFeature(feature)
     styleCollapsibles()
 }
 
+function fetchLatestRelease(url, authenticationToken)
+{
+    const xmlhttp = new XMLHttpRequest()
+
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            const myArr = JSON.parse(this.responseText)
+            console.log(myArr);
+            document.getElementById('currentVersion').textContent = 'Aktuelle Version: ' + myArr.name;
+        }
+        else if(this.readyState == 4)
+        {
+            handleRequestErrors(this)
+        }
+    }
+    xmlhttp.open('GET', url, true)
+    xmlhttp.setRequestHeader("Authorization", 'token ' + authenticationToken);
+    xmlhttp.send()
+}
+
 function fetchData()
 {
     // TODO: prevent this method from being loaded too often in a row. Maybe use fixed time intervals for reloading?
@@ -379,6 +400,8 @@ function fetchData()
     // clear output
     document.getElementById('maincontents').innerHTML = ''
 
+    // get latest milestone
+    fetchLatestRelease('https://api.github.com/repos/' + Config.Repository + '/releases/latest', Config.AuthenticationToken);
     // Fetch all open issues to make sure that none are missed.
     fetchIssues(url + '&state=open', Config.AuthenticationToken, parseIssues, formatFeature)
     // Fetch recently closed issues too
