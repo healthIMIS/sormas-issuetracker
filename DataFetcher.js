@@ -344,7 +344,7 @@ function formatFeature(feature)
     if(numFullyReceivedIssues == numIssuesToFetch)
     {
         // Everything received!
-        document.getElementById('maincontents').style.display = ""
+        document.getElementById('maincontents').style.display = "block"
         document.getElementById('loadingicon').style.display = "none"
         console.log("Done! Fetched " + numFullyReceivedIssues + " Issues")
         addCollapsibleEventListener()
@@ -408,7 +408,7 @@ function fetchData()
     // clear output, display loadingbar
     document.getElementById('maincontents').innerHTML = ''
     document.getElementById('maincontents').style.display = "none"
-    document.getElementById('loadingicon').style.display = ""
+    document.getElementById('loadingicon').style.display = "block"
     numFullyReceivedIssues = 0;
     numIssuesToFetch = 0;
 
