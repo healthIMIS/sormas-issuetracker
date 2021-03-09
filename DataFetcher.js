@@ -65,7 +65,7 @@ function formatDescription(desc) {
     })
 
     // links
-    desc = desc.replace(new RegExp('\\[.*\]\\(.*\\)', 'g'), function (xevent) {
+    desc = desc.replace(new RegExp('\\[.*\]\\(.*\\)', 'g'), function (x) {
         return (
             '<a href="' +
             x.substring(x.search(']') + 2, x.length - 1) +
