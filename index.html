@@ -6,8 +6,9 @@
     <title>SORMAS Issuetracker</title>
 </head>
 <body onload="fetchData()">
-    <div id="maincontents"></div>
+    <div id="maincontents" style="display: none;"></div>
     <div id="currentVersion"></div>
+    <img id="loadingicon" src="loadinggif.gif" alt="Loading...">
     <div style="display: block; margin: 0 auto; width: 130px;">
         <button onclick="fetchData()">Update Data</button>
     </div>

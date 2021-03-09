@@ -25,6 +25,8 @@ const i18n={
     'Links' : 'Links'
 }
 
+
+
 function formatDescription(desc) {
     // TODO: Catch unclosed html-comments
     // Replace all headlines
@@ -214,35 +216,8 @@ class Feature {
     }
 }
 
-function styleCollapsibles()
-{
-    const collapsibles = document.getElementsByClassName('collapsiblebtn')
-    let i
-
-    for(i = 0; i < collapsibles.length; i++)
-    {
-        collapsibles[i].removeEventListener('click', collapsibleEventListener)
-        collapsibles[i].addEventListener('click', collapsibleEventListener)
-    }
-}
-
-function collapsibleEventListener()
-{
-    const content = this.nextElementSibling;
-    if (content != null) {
-        if (content.style.maxHeight) {
-            content.style.maxHeight = null;
-            this.firstElementChild.classList.remove('minus-icon');
-            this.firstElementChild.classList.add('plus-icon');
-            content.style.borderTop = "0px solid #D23264";
-        } else {
-            content.style.borderTop = "1px solid #D23264";
-            content.style.maxHeight = content.scrollHeight + "px";
-            this.firstElementChild.classList.remove('plus-icon');
-            this.firstElementChild.classList.add('minus-icon');
-        }
-    }
-}
+var numIssuesToFetch = 0;
+var numFullyReceivedIssues = 0;
 
 function fetchIssues(url, authenticationToken, parser, formatter)
 {
@@ -251,6 +226,7 @@ function fetchIssues(url, authenticationToken, parser, formatter)
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const myArr = JSON.parse(this.responseText)
+            numIssuesToFetch += myArr.length;
             parser(myArr, authenticationToken, formatter)
         }
         else if(this.readyState == 4)
@@ -344,6 +320,8 @@ function parseIssues(arr, authenticationToken, formatter) {
                     fetchComments(feature, authenticationToken, function(done, feature){
                         if(done == true)
                         {
+                            // Once I am here, all required information for the issue is fetched
+                            numFullyReceivedIssues += 1;
                             formatter(feature)
                         }
                     })
@@ -359,11 +337,48 @@ function formatFeature(feature)
     feature.formatContents()
     feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progresstitle +  '</div>'
     feature.html += '<div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
-    // make sure feature wasn't finished loong ago
+    // make sure feature wasn't finished too long ago
     if(feature.isTooOld() == false) {
         document.getElementById('maincontents').innerHTML += feature.html
     }
-    styleCollapsibles()
+    if(numFullyReceivedIssues == numIssuesToFetch)
+    {
+        // Everything received!
+        document.getElementById('maincontents').style.display = ""
+        document.getElementById('loadingicon').style.display = "none"
+        console.log("Done! Fetched " + numFullyReceivedIssues + " Issues")
+        addCollapsibleEventListener()
+    }
+}
+
+function addCollapsibleEventListener()
+{
+    const collapsibles = document.getElementsByClassName('collapsiblebtn')
+    let i
+
+    for(i = 0; i < collapsibles.length; i++)
+    {
+        collapsibles[i].removeEventListener('click', collapsibleEventListener)
+        collapsibles[i].addEventListener('click', collapsibleEventListener)
+    }
+}
+
+function collapsibleEventListener()
+{
+    const content = this.nextElementSibling;
+    if (content != null) {
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+            this.firstElementChild.classList.remove('minus-icon');
+            this.firstElementChild.classList.add('plus-icon');
+            content.style.borderTop = "0px solid #D23264";
+        } else {
+            content.style.borderTop = "1px solid #D23264";
+            content.style.maxHeight = content.scrollHeight + "px";
+            this.firstElementChild.classList.remove('plus-icon');
+            this.firstElementChild.classList.add('minus-icon');
+        }
+    }
 }
 
 function fetchLatestRelease(url, authenticationToken)
@@ -391,8 +406,12 @@ function fetchData()
     // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
     const url = 'https://api.github.com/repos/' + Config.Repository + '/issues?labels=' + Config.Label + '&per_page=' + Config.maxIssuesToFetch;
 
-    // clear output
+    // clear output, display loadingbar
     document.getElementById('maincontents').innerHTML = ''
+    document.getElementById('maincontents').style.display = "none"
+    document.getElementById('loadingicon').style.display = ""
+    numFullyReceivedIssues = 0;
+    numIssuesToFetch = 0;
 
     // get latest milestone
     fetchLatestRelease('https://api.github.com/repos/' + Config.Repository + '/releases/latest', Config.AuthenticationToken);
