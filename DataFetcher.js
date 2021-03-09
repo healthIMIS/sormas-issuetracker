@@ -1,7 +1,7 @@
 // For information on how to configure this Project, please read README
 const Config={
     'Repository' : 'hzi-braunschweig/SORMAS-Project',
-    'Projects' : [1195681, 5529312, 11280488], // TODO: Add interactions project id, remove first 2 deprecated projects
+    'Projects' : [11280488, 11056239],
     'AllowedCommentAuthorIDs' : [4655486, 70317594, 76884029],
     'AuthenticationToken' : '57c1ed9995de7c04' + 'a63f2976a3caa68cfaff390c',
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
@@ -65,7 +65,7 @@ function formatDescription(desc) {
     })
 
     // links
-    desc = desc.replace(new RegExp('\\[.*\]\\(.*\\)', 'g'), function (x) {
+    desc = desc.replace(new RegExp('\\[.*\]\\(.*\\)', 'g'), function (xevent) {
         return (
             '<a href="' +
             x.substring(x.search(']') + 2, x.length - 1) +
