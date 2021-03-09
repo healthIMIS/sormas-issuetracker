@@ -402,7 +402,6 @@ function fetchLatestRelease(url, authenticationToken)
 
 function fetchData()
 {
-    // TODO: Add some kind of loading indicator while issues are being fetched
     // TODO: Make sure that always the latest comments and events are fetched (if there are more entries than received due to per_page limit)
     const url = 'https://api.github.com/repos/' + Config.Repository + '/issues?labels=' + Config.Label + '&per_page=' + Config.maxIssuesToFetch;
 
