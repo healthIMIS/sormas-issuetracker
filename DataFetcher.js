@@ -404,5 +404,4 @@ function fetchData()
 function handleRequestErrors(err)
 {
     console.log(err.status + ': ' + err.responseText)
-    document.getElementById("errors").innerHTML = '<p style="color: red">A Problem occured fetching new data. See console for details.</p>';
 }
