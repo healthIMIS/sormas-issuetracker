@@ -346,7 +346,6 @@ function formatFeature(feature)
         // Everything received!
         document.getElementById('maincontents').style.display = "block"
         document.getElementById('loadingicon').style.display = "none"
-        console.log("Done! Fetched " + numFullyReceivedIssues + " Issues")
         addCollapsibleEventListener()
     }
 }
