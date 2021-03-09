@@ -165,16 +165,16 @@ class Feature {
             //this.title='<span class="plus-icon"></span>';
             this.title='';
             if (sourceText.search(Config.DescriptionIdentifier + '.\\[') != -1) {
-                this.title += '<div class="titlespan">' + sourceText.substring(
+                this.title += '<span class="titlespan">' + sourceText.substring(
                     // TODO: the 30 and 29 here seem mighty suspicous
                     sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 33,
                     sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 33 + sourceText.substring(sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 32, sourceText.length).search(new RegExp('\]')) - 1
-                ) + '</div>';
+                ) + '</span>';
             }
             else
             {
                 this.title +=
-                    '<div class="titlespan">' + this.issue.title + '</div>';
+                    '<span class="titlespan">' + this.issue.title + '</span>';
             }
 
             // Progress Information
@@ -185,7 +185,7 @@ class Feature {
                 // All milestonetitles should follow the convention: Sprint 123 - 1.2.3
                 this.milestoneInfo = ' (' + milestonetitle.substring(milestonetitle.search(' - ') + 3) + ')';
             }
-            this.progresstitle = '<div class="progresstext">' + ProgressState[this.progressstate] + this.milestoneInfo + '</div>';
+            this.progresstitle = '<span class="progresstext">' + ProgressState[this.progressstate] + this.milestoneInfo + '</span>';
 
             // Body
             this.mainbody = ''; //<h3>' + i18n.Description + '</h3>';
@@ -357,7 +357,7 @@ function formatFeature(feature)
 {
     // format feature divs
     feature.formatContents()
-    feature.html = '<div class="feature"><div class="collapsiblebtn"><div class="plusminus-icon plus-icon"></div>' + feature.title + feature.progresstitle +  '</div>'
+    feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progresstitle +  '</div>'
     feature.html += '<div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
     // make sure feature wasn't finished loong ago
     if(feature.isTooOld() == false) {
