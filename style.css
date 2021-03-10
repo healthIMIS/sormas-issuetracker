@@ -8,6 +8,11 @@ body {
     margin: 0 auto;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 5px;
+    margin-bottom: 2px;
+}
+
 #maincontents {
     width: 98%;
     border-right: 2px solid #D23264;
@@ -87,6 +92,15 @@ body {
     max-height: 0; /* start collapsed */
     transition: max-height 0.5s ease-out, border-width 0.5s ease;
     border-color: #D23264;
+}
+
+.featurecontent{
+    padding-top: 10px;
+}
+
+.featurelinks{
+    padding-top: 5px;
+    padding-bottom: 10px;
 }
 
 code {

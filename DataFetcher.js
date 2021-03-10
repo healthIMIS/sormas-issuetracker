@@ -29,7 +29,7 @@ const i18n={
 
 function formatDescription(desc) {
     // TODO: Catch unclosed html-comments
-    // Replace all headlines
+    // Replace all headlines. Single # is ignored because it's comonly used to reference other issues
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
         return '<h5>' + x.substring(6, x.length) + '</h5>'
     })
@@ -77,8 +77,13 @@ function formatDescription(desc) {
         )
     })
 
-    // Replace Linebreaks
+    // Replace Linebreaks, remove double linebreaks for better readability
+
     desc = desc.replace(new RegExp('\r?\n', 'g'), '<br>')
+    //desc = desc.replace(new RegExp('<br><br>', 'g'), '<br>')
+    desc = desc.replace(new RegExp('</h[2345]><br>', 'g'), function(x) {
+        return x.substring(0, x.length-4);
+    })
 
     // last, remove leading and trailing linebreaks
     if(desc.substr(0, 4) == '<br>')
@@ -205,7 +210,7 @@ class Feature {
                     )
                 )
             } else {
-                this.mainbody += '<p>' + i18n.NoDescriptionFound + '<p><div style="border: 1px dashed gray;">' + formatDescription(sourceText) + '</div>';
+                this.mainbody += '<p style="margin: 0; padding-top: 2px; padding-bottom: 5px;">' + i18n.NoDescriptionFound + '</p><div style="border: 1px dashed gray;">' + formatDescription(sourceText) + '</div>';
 
             }
 
@@ -336,7 +341,7 @@ function formatFeature(feature)
     // format feature divs
     feature.formatContents()
     feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progresstitle +  '</div>'
-    feature.html += '<div class="collapsiblecontent"><p>' + feature.mainbody + '</p><p>' + feature.linksection + '</p></div></div>'
+    feature.html += '<div class="collapsiblecontent"><div class="featurecontent">' + feature.mainbody + '</div><div class="featurelinks">' + feature.linksection + '</div></div></div>'
     // make sure feature wasn't finished too long ago
     if(feature.isTooOld() == false) {
         document.getElementById('maincontents').innerHTML += feature.html
