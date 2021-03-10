@@ -171,11 +171,12 @@ class Feature {
             // Title
             //this.title='<span class="plus-icon"></span>';
             this.title='';
-            if (sourceText.search(Config.DescriptionIdentifier + '.\\[') != -1) {
+            if (sourceText.search(Config.DescriptionIdentifier + '\\[') != -1) {
+                console.log(sourceText);
+                const regex = RegExp(Config.DescriptionIdentifier + '\\[.*]');
                 this.title += '<span class="titlespan">' + sourceText.substring(
-                    // TODO: the 30 and 29 here seem mighty suspicous
-                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 33,
-                    sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 33 + sourceText.substring(sourceText.search(new RegExp(Config.DescriptionIdentifier + '.\\[')) + 32, sourceText.length).search(new RegExp('\]')) - 1
+                    regex.exec(sourceText).index + Config.DescriptionIdentifier.length + 1,
+                    regex.exec(sourceText).index + regex.exec(sourceText)[0].length - 1
                 ) + '</span>';
             }
             else

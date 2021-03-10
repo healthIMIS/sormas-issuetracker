@@ -15,7 +15,7 @@ Example:
 
 ```
 <!--
-### Issuetracker-Description-DE [Translated Title]
+### Issuetracker-Description-DE[Translated Title]
 Translated Content
 ### End-Description-DE
 -->
