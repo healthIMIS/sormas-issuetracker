@@ -25,10 +25,22 @@ const i18n={
     'Links' : 'Links'
 }
 
+// some very basic sanitization to prevent most common attacks
+// TODO: Check sanitizer for further vulnerabilities
+function sanitizeText(text)
+{
+    // Escape all tags, but first remove comments
+    text = text.replace(new RegExp('<!--.*-->'), '');
+    text = text.replace(new RegExp('&', 'g'), '&amp;');
+    text = text.replace(new RegExp('<', 'g'), '&lt;');
+    text = text.replace(new RegExp('>', 'g'), '&gt;');
+    text = text.replace(new RegExp('"', 'g'), '&quot;');
+    text = text.replace(new RegExp('\'', 'g'), '&#27;');
+    return text;
+}
 
-
-function formatDescription(desc) {
-    // TODO: Catch unclosed html-comments
+function formatMarkdown(desc) {
+    console.log(desc);
     // Replace all headlines. Single # is ignored because it's comonly used to reference other issues
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
         return '<h5>' + x.substring(6, x.length) + '</h5>'
@@ -58,7 +70,7 @@ function formatDescription(desc) {
     // images
     desc = desc.replace(new RegExp('\!\\[.*\]\\(.*\\)', 'g'), function (x) {
         return (
-            '<a target="_blank" href="' + x.substring(x.search(']') + 2, x.length - 1) + '"><img src ="' +
+            '<a target="_blank" href="' + x.substring(x.search(']') + 2, x.length - 1) + '"><img class="featureimage" src ="' +
             x.substring(x.search(']') + 2, x.length - 1) +
             '" alt="' +
             x.substring(2, x.search(']')) +
@@ -78,7 +90,6 @@ function formatDescription(desc) {
     })
 
     // Replace Linebreaks, remove double linebreaks for better readability
-
     desc = desc.replace(new RegExp('\r?\n', 'g'), '<br>')
     //desc = desc.replace(new RegExp('<br><br>', 'g'), '<br>')
     desc = desc.replace(new RegExp('</h[2345]><br>', 'g'), function(x) {
@@ -165,14 +176,12 @@ class Feature {
 
     }
     format(sourceText) {
-        // TODO: Input sanitzier
         // TODO: Optimize for Mobile devices
         if (sourceText != null) {
+            sourceText = sanitizeText(sourceText)
             // Title
-            //this.title='<span class="plus-icon"></span>';
             this.title='';
             if (sourceText.search(Config.DescriptionIdentifier + '\\[') != -1) {
-                console.log(sourceText);
                 const regex = RegExp(Config.DescriptionIdentifier + '\\[.*]');
                 this.title += '<span class="titlespan">' + sourceText.substring(
                     regex.exec(sourceText).index + Config.DescriptionIdentifier.length + 1,
@@ -204,14 +213,14 @@ class Feature {
                 {
                     endIndex = sourceText.search(Config.DescriptionEndTag);
                 }
-                this.mainbody += formatDescription(
+                this.mainbody += formatMarkdown(
                     sourceText.substring(
                         startIndex,
                         endIndex
                     )
                 )
             } else {
-                this.mainbody += '<p style="margin: 0; padding-top: 2px; padding-bottom: 5px;">' + i18n.NoDescriptionFound + '</p><div style="border: 1px dashed gray;">' + formatDescription(sourceText) + '</div>';
+                this.mainbody += '<p style="margin: 0; padding-top: 2px; padding-bottom: 5px;">' + i18n.NoDescriptionFound + '</p><div style="border: 1px dashed gray;">' + formatMarkdown(sourceText) + '</div>';
 
             }
 
