@@ -3,7 +3,7 @@
 This issuetracker is supposed to automatically fetch issue data from the [SORMAS](https://github.com/hzi-braunschweig/SORMAS-Project) repository.
 Issues can also be fetched from other repositories with the necessary configuration.
 
-Issue Progress ratings are based on the issues position in project boards.
+Issue Progress ratings are based on whether the issue is closed and/or assigned to a project board. The version next to finished issues is basd on the issues milestone.
 
 **PLEASE NOT THAT THIS PROJECT IS STILL WORK IN PROGRESS!**
 
@@ -23,7 +23,7 @@ Translated Content
 
 ## Configuration
 
-To configure the issuetracker, change the values of the JavaScript Objects `Config`, `ProjectColumns` and `i18n` in `DataFetcher.js`
+To configure the issuetracker, change the values of the JavaScript Objects `Config`, `ProgressState` and `i18n` in `DataFetcher.js`
 
 #### General Config
 
@@ -40,26 +40,13 @@ To configure the issuetracker, change the values of the JavaScript Objects `Conf
 
 Please note that Events and Comments are fetched oldest-newest, so if there are more comments than maxCommentsToFetch, the newest comments **will not be fetched**.
 
-#### ProjectColumns
-
-Map All Project Columns to percentages and display Strings.
-
-Structure: `'<Column Name as set in GitHub>': [<percentage>, '<display string>']'`
-
-```
-const ProjectColumns={
-    'none' : [0, 'No Information'],
-    'In Progress' : [50, 'Development'],
-    'Done' : [100, 'Finished']
-}
-```
-
-Please note that a Column named `'none'` needs to be definied, and that there needs to be exactly one column with percentage 100.
-
-#### i18n
+#### i18n and ProjectStates
 Placeholders to allow basic translation of the page.
 Usage: `'<text>' : '<translation>'`
 
+* `planned`: Issues which are not assigned to a relevant project board nor closed
+* `development`: Issues which are open and assigned to a relevant project
+* `done`: Issues which are closed
 * `GitHubIssue`: GitHub Issue
 * `NoDescriptionFound`: Text when no description was found
 * `Description`: Description
