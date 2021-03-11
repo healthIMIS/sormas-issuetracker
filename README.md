@@ -5,7 +5,7 @@ Issues can also be fetched from other repositories with the necessary configurat
 
 Issue Progress ratings are based on whether the issue is closed and/or assigned to a project board. The version next to finished issues is basd on the issues milestone.
 
-**PLEASE NOT THAT THIS PROJECT IS STILL WORK IN PROGRESS!**
+**PLEASE NOTE THAT THIS PROJECT IS STILL WORK IN PROGRESS!**
 
 ## Usage
 
