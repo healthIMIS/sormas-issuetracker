@@ -6,8 +6,8 @@ const Config={
     'AuthenticationToken' : '57c1ed9995de7c04' + 'a63f2976a3caa68cfaff390c',
     'AllowedCommentAuthorAssociations' : ['OWNER', 'MEMBER'],
     'Label' : 'de-public',
-    'DescriptionIdentifier' : '### Issuetracker-Description-DE',
-    'DescriptionEndTag'  : '### End-Description-DE',
+    'DescriptionIdentifier' : '###\\s*Issuetracker-Description-DE',
+    'DescriptionEndTag'  : '###\\s*End-Description-DE',
     'displayDaysIfFinished' : 21,
     'maxIssuesToFetch' : 30,
     'maxEventsToFetch' : 80,
@@ -40,19 +40,18 @@ function sanitizeText(text)
 }
 
 function formatMarkdown(desc) {
-    console.log(desc);
     // Replace all headlines. Single # is ignored because it's comonly used to reference other issues
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
-        return '<h5>' + x.substring(6, x.length) + '</h5>'
+        return '<h5>' + x.substring(5, x.length) + '</h5>'
     })
     desc = desc.replace(new RegExp('####.*', 'g'), function (x) {
-        return '<h4>' + x.substring(5, x.length) + '</h4>'
+        return '<h4>' + x.substring(4, x.length) + '</h4>'
     })
     desc = desc.replace(new RegExp('###.*', 'g'), function (x) {
-        return '<h3>' + x.substring(4, x.length) + '</h3>'
+        return '<h3>' + x.substring(3, x.length) + '</h3>'
     })
     desc = desc.replace(new RegExp('##.*', 'g'), function (x) {
-        return '<h2>' + x.substring(3, x.length) + '</h2>'
+        return '<h2>' + x.substring(2, x.length) + '</h2>'
     })
 
     // code
@@ -181,12 +180,14 @@ class Feature {
             sourceText = sanitizeText(sourceText)
             // Title
             this.title='';
-            if (sourceText.search(Config.DescriptionIdentifier + '\\[') != -1) {
-                const regex = RegExp(Config.DescriptionIdentifier + '\\[.*]');
-                this.title += '<span class="titlespan">' + sourceText.substring(
-                    regex.exec(sourceText).index + Config.DescriptionIdentifier.length + 1,
-                    regex.exec(sourceText).index + regex.exec(sourceText)[0].length - 1
-                ) + '</span>';
+            if (sourceText.search(Config.DescriptionIdentifier + '\\s*\\[') != -1) {
+                const regex = RegExp(Config.DescriptionIdentifier);
+                // find beginning of description identifier
+                const descStartIndex = regex.exec(sourceText).index;
+                // find beginning and end of title
+                const titleStartIndex = descStartIndex + sourceText.substring(descStartIndex).search(new RegExp('\\[')) + 1;
+                const titleEndIndex = descStartIndex + sourceText.substring(descStartIndex).search(new RegExp('\\]'));
+                this.title += '<span class="titlespan">' + sourceText.substring(titleStartIndex, titleEndIndex) + '</span>';
             }
             else
             {
