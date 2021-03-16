@@ -43,16 +43,16 @@ function formatMarkdown(desc) {
     console.log(desc);
     // Replace all headlines. Single # is ignored because it's comonly used to reference other issues
     desc = desc.replace(new RegExp('#####.*', 'g'), function (x) {
-        return '<h5>' + x.substring(6, x.length) + '</h5>'
+        return '<h5>' + x.substring(5, x.length) + '</h5>'
     })
     desc = desc.replace(new RegExp('####.*', 'g'), function (x) {
-        return '<h4>' + x.substring(5, x.length) + '</h4>'
+        return '<h4>' + x.substring(4, x.length) + '</h4>'
     })
     desc = desc.replace(new RegExp('###.*', 'g'), function (x) {
-        return '<h3>' + x.substring(4, x.length) + '</h3>'
+        return '<h3>' + x.substring(3, x.length) + '</h3>'
     })
     desc = desc.replace(new RegExp('##.*', 'g'), function (x) {
-        return '<h2>' + x.substring(3, x.length) + '</h2>'
+        return '<h2>' + x.substring(2, x.length) + '</h2>'
     })
 
     // code
