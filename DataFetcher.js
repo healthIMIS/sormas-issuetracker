@@ -374,11 +374,11 @@ function pushFeaturesToHtml()
         }
         if(a.progressstate == 'done' || b.progressstate == 'planned')
         {
-            return 1;
+            return -1;
         }
         if(b.progressstate == 'done' || a.progressstate == 'planned')
         {
-            return -1;
+            return 1;
         }
         return 0;
     });
