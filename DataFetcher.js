@@ -121,6 +121,11 @@ class Feature {
     setComments(commentsArr){
         this.comments = commentsArr
     }
+    getAge()
+    {
+        // return age since creation in milliseconds
+        return(new Date().getTime() - new Date(this.issue.created_at).getTime());
+    }
     isTooOld()
     {
         // Check if a finished issue was finished recently enough to still be displayed
@@ -232,6 +237,8 @@ class Feature {
     }
 }
 
+
+var features = [];
 var numIssuesToFetch = 0;
 var numFullyReceivedIssues = 0;
 
@@ -323,7 +330,7 @@ function fetchComments(feature, authenticationToken, callback)
     xmlhttp.send()
 }
 
-function parseIssues(arr, authenticationToken, formatter) {
+function parseIssues(arr, authenticationToken) {
     const featurearray = []
     let i
     for (i = 0; i < arr.length; i++) {
@@ -337,8 +344,13 @@ function parseIssues(arr, authenticationToken, formatter) {
                         if(done == true)
                         {
                             // Once I am here, all required information for the issue is fetched
+                            feature.formatContents()
+                            features.push(feature)
                             numFullyReceivedIssues += 1;
-                            formatter(feature)
+                            if(numFullyReceivedIssues == numIssuesToFetch)
+                            {
+                                pushFeaturesToHtml();
+                            }
                         }
                     })
                 }
@@ -347,23 +359,46 @@ function parseIssues(arr, authenticationToken, formatter) {
     }
 }
 
-function formatFeature(feature)
+function pushFeaturesToHtml()
 {
+    // sort features by age and progressstate
+    features.sort(function (a,b) {
+        if(a.progressstate == b.progressstate) {
+            if (a.getAge() < b.getAge()) {
+                return -1;
+            }
+            if (a.getAge() > b.getAge()) {
+                return 1;
+            }
+            return 0;
+        }
+        if(a.progressstate == 'done' || b.progressstate == 'planned')
+        {
+            return 1;
+        }
+        if(b.progressstate == 'done' || a.progressstate == 'planned')
+        {
+            return -1;
+        }
+        return 0;
+    });
+
     // format feature divs
-    feature.formatContents()
-    feature.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + feature.title + feature.progresstitle +  '</div>'
-    feature.html += '<div class="collapsiblecontent"><div class="featurecontent">' + feature.mainbody + '</div><div class="featurelinks">' + feature.linksection + '</div></div></div>'
-    // make sure feature wasn't finished too long ago
-    if(feature.isTooOld() == false) {
-        document.getElementById('maincontents').innerHTML += feature.html
-    }
-    if(numFullyReceivedIssues == numIssuesToFetch)
-    {
-        // Everything received!
-        document.getElementById('maincontents').style.display = "block"
-        document.getElementById('loadingicon').style.display = "none"
-        addCollapsibleEventListener()
-    }
+    features.forEach(elem => {
+        elem.html = '<div class="feature"><div class="collapsiblebtn"><span class="plusminus-icon plus-icon"></span>' + elem.title + elem.progresstitle +  '</div>'
+        elem.html += '<div class="collapsiblecontent"><div class="featurecontent">' + elem.mainbody + '</div><div class="featurelinks">' + elem.linksection + '</div></div></div>'
+
+        // make sure feature wasn't finished too long ago
+        if(elem.isTooOld() == false) {
+            document.getElementById('maincontents').innerHTML += elem.html
+        }
+
+    });
+
+    // Everything received!
+    document.getElementById('maincontents').style.display = "block"
+    document.getElementById('loadingicon').style.display = "none"
+    addCollapsibleEventListener()
 }
 
 function addCollapsibleEventListener()
@@ -430,9 +465,9 @@ function fetchData()
     // get latest milestone
     fetchLatestRelease('https://api.github.com/repos/' + Config.Repository + '/releases/latest', Config.AuthenticationToken);
     // Fetch all open issues to make sure that none are missed.
-    fetchIssues(url + '&state=open', Config.AuthenticationToken, parseIssues, formatFeature)
+    fetchIssues(url + '&state=open', Config.AuthenticationToken, parseIssues)
     // Fetch recently closed issues too
-    fetchIssues(url + '&state=closed', Config.AuthenticationToken, parseIssues, formatFeature)
+    fetchIssues(url + '&state=closed', Config.AuthenticationToken, parseIssues)
 }
 
 function handleRequestErrors(err)
