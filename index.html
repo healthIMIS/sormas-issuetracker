@@ -27,7 +27,7 @@
         let features = document.getElementsByClassName('feature')
         for(let i = 0; i < features.length; i++)
         {
-            if(features[i].getElementsByClassName('titlespan')[0].innerHTML.toLowerCase().includes(input))
+            if(features[i].getElementsByClassName('titlespan')[0].innerHTML.toLowerCase().includes(input) || features[i].getElementsByClassName('featurecontent')[0].innerHTML.toLowerCase().includes(input))
             {
                 features[i].style.display="block";
             }
