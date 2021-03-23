@@ -6,6 +6,7 @@
     <title>SORMAS Issuetracker</title>
 </head>
 <body onload="fetchData()">
+    <input type="text" id="searchbar" name="searchbar" placeholder="Funktion suchen..." value="" onkeyup="filterList()"><br><br>
     <div id="maincontents" style="display: none;"></div>
     <div id="currentVersion"></div>
     <img id="loadingicon" src="loadinggif.gif" alt="Loading...">
@@ -16,4 +17,25 @@
     -->
 </body>
 </html>
-<script src="DataFetcher.js"></script>
+<script src="DataFetcher.js">
+</script>
+<script>
+    function filterList()
+    {
+        console.log("key pressed!")
+        let input=document.getElementById('searchbar').value;
+        input = input.toLowerCase();
+        let features = document.getElementsByClassName('feature')
+        for(let i = 0; i < features.length; i++)
+        {
+            if(features[i].getElementsByClassName('titlespan')[0].innerHTML.toLowerCase().includes(input))
+            {
+                features[i].style.display="block";
+            }
+            else
+            {
+                features[i].style.display="none";
+            }
+        }
+    }
+</script>
