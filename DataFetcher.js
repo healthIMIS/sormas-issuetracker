@@ -16,7 +16,7 @@ const Config={
 const ProgressState={
     'planned' : 'In Planung',
     'development' : 'In Entwicklung',
-    'done' : 'Fertig',
+    'done' : 'Verfügbar'
 }
 const i18n={
     'GitHubIssue' : 'GitHub Issue',
@@ -106,6 +106,35 @@ function formatMarkdown(desc) {
     }
 
     return desc
+}
+
+var latestVersion='1.57.2'
+
+function compareVersions(v1, v2)
+{
+    var v1parts = v1.split('.')
+    var v2parts = v2.split('.')
+
+    for (var i = 0; i < v1parts.length; ++i) {
+        if (v2parts.length == i) {
+            return 1;
+        }
+
+        if (v1parts[i] == v2parts[i]) {
+            continue;
+        }
+        else if (v1parts[i] > v2parts[i]) {
+            return 1;
+        }
+        else {
+            return -1;
+        }
+    }
+    if (v1parts.length != v2parts.length) {
+        return -1;
+    }
+
+    return 0;
 }
 
 class Feature {
@@ -203,10 +232,23 @@ class Feature {
             // Progress Information
             this.milestoneInfo = ''
             if(this.issue.state == 'closed') {
-                this.progressstate = 'done'
-                const milestonetitle = this.issue.milestone.title;
                 // All milestonetitles should follow the convention: Sprint 123 - 1.2.3
-                this.milestoneInfo = ' (' + milestonetitle.substring(milestonetitle.search(' - ') + 3) + ')';
+                const milestonetitle = this.issue.milestone.title;
+                const milestoneVersion = milestonetitle.substring(milestonetitle.search(' - ') + 3)
+
+                // check weather if the milestone is older or newer than the newest version
+
+                if(compareVersions(milestoneVersion, latestVersion) == 1)
+                {
+                    this.milestoneInfo = ' ab Version ' + milestoneVersion;
+                }
+                else
+                {
+                    this.milestoneInfo = ' seit Version ' + milestoneVersion;
+                }
+                // TODO: what if no milestone is available?
+
+                this.progressstate = 'done'
             }
             this.progresstitle = '<span class="progresstext">' + ProgressState[this.progressstate] + this.milestoneInfo + '</span>';
 
@@ -371,15 +413,59 @@ function pushFeaturesToHtml()
                 return 1;
             }
             return 0;
+        }})
+    features.sort(function (a,b) {
+        var aStateInteger;
+        var bStateInteger;
+        if(a.progressstate == 'planned')
+        {
+            aStateInteger = 0;
         }
-        if(a.progressstate == 'done' || b.progressstate == 'planned')
+        else if(a.progressstate == 'development')
+        {
+            aStateInteger = 1;
+        }
+        else if(a.progressstate == 'done')
+        {
+            aStateInteger = 2;
+        }
+        if(b.progressstate == 'planned')
+        {
+            bStateInteger = 0;
+        }
+        else if(b.progressstate == 'development')
+        {
+            bStateInteger = 1;
+        }
+        else if(b.progressstate == 'done')
+        {
+            bStateInteger = 2;
+        }
+
+        if(aStateInteger > bStateInteger)
         {
             return -1;
         }
-        if(b.progressstate == 'done' || a.progressstate == 'planned')
+        else if (aStateInteger < bStateInteger)
         {
             return 1;
         }
+        else
+        {
+            if(a.progressstate == 'done' && b.progressstate == 'done')
+            {
+                // if both issues are finished sort by closed date
+                const aClosedDate = new Date().getTime() - new Date(a.issue.closed_at).getTime();
+                const bClosedDate = new Date().getTime() - new Date(b.issue.closed_at).getTime();
+                if(aClosedDate < bClosedDate)
+                {
+                    return 1;
+                }
+                return -1;
+            }
+            return 0;
+        }
+
         return 0;
     });
 
@@ -438,6 +524,7 @@ function fetchLatestRelease(url, authenticationToken)
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const myArr = JSON.parse(this.responseText)
+            latestVersion = myArr.name.substring(7); // Releases usually start with SORMAS X.XX.X
             document.getElementById('currentVersion').textContent = 'Aktuelle Version: ' + myArr.name;
         }
         else if(this.readyState == 4)
@@ -472,5 +559,6 @@ function fetchData()
 
 function handleRequestErrors(err)
 {
+    console.log(this)
     console.log(err.status + ': ' + err.responseText)
 }

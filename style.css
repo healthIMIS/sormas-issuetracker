@@ -79,7 +79,7 @@ h1, h2, h3, h4, h5, h6 {
     color: #D23264;
     margin-left: 1%;
     margin-right: 1%;
-    white-space: nowrap;
+    display: inline-block;
 }
 
 .collapsiblecontent{
