@@ -559,6 +559,6 @@ function fetchData()
 
 function handleRequestErrors(err)
 {
-    console.log(this)
+    console.log(err)
     console.log(err.status + ': ' + err.responseText)
 }
